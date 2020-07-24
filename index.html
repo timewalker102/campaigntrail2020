@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Title of the document</title>
+</head>
+
+<body>
+<h1>Campaign Trail 2020</h1>
+<img src="images/trump.jpg" alt="Donald J. Trump" style="width:128px;height:128px;display:block" id="image">
+<div id="map" style="width: 500px; height: 300px;display:none"></div>
+<h2 id="title">Candidate Selection</h1>
+<select id="candidate" onchange="change_candidate()">
+<option value="trump">Donald Trump</option>
+<option value="biden">Joe Biden</option>
+</select>
+<div id="options" style="display:none">
+<span><input type="radio" id="1" name="options" value="1">
+<label for="1" id="label1">Option 1</label><br>
+<span><input type="radio" id="2" name="options" value="2">
+<label for="2" id="label2">Option 2</label><br>
+<span><input type="radio" id="3" name="options" value="3">
+<label for="3" id="label3">Option 3</label><br>
+<span><input type="radio" id="4" name="options" value="4">
+<label for="4" id="label4">Option 4</label><br>
+</div>
+<p id="blurb">Threatened by economic insecurity and a global health pandemic, Donald J. Trump is hoping to recreate the magic of 2016 and win another upset election. Challenges await, however: he presides as an incumbent over a slipping economy and national unrest, and will need to assure the American public that he can be trusted with another term. </p>
+<button type="button" onclick="submit()" id="submit">Submit</button>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="js/jquery.vmap.js"></script>
+<script type="text/javascript" src="js/jquery.vmap.usa.js" charset="utf-8"></script>
+
+<script>
+
+TRUMP_BLURB = "Threatened by economic insecurity and a global health pandemic, Donald J. Trump is hoping to recreate the magic of 2016 and win another upset election. Challenges await, however: he presides as an incumbent over a slipping economy and national unrest, and will need to assure the American public that he can be trusted with another term. "
+BIDEN_BLURB = "After a hard-fought primary with endless twists and turns, Vice-President Joseph R. Biden is now the presumptive Democratic nominee for President. His polls are strong and his appeal is wide, but scores of Biden's famous gaffes and difficulties with uniting the party may threaten his vast polling lead." 
+
+TRUMP_IMG = "images/trump.jpg"
+BIDEN_IMG = "images/biden.jpeg"
+PARSCALE_IMG = "images/parscale.jpg"
+DILLON_IMG = "images/dillon.png"
+
+COLORS = ["#244999", "#577ccc", "#8aafff", "#9e8767", "#ff8b98", "#fe5864", "#d12531"]
+NUMBERS = [-10, -6, -3, 0, 3, 6, 10]
+
+week = 0
+stage = 0
+state_lock = 0
+clicked_state = ''
+national_margin = -6
+//national_margin = 0
+candidate = "trump"
+advisor_img = PARSCALE_IMG
+
+states = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
+state_margins = [29.82, 16.83, 5.64, 29.02, -28.01, -2.81, -11.54, -84.68, -9.27, 3.3, 7.23, -30.08, 33.87, -14.96, 21.26, 11.51, 22.7, 31.94, 21.74, -0.86, -24.32, -25.1, 2.32, 0.58, 19.93, 20.74, 22.52, 27.15, -0.32, 1.73, -12, -6.11, -20.39, 5.75, 37.83, 10.23, 38.49, -8.88, 2.82, -13.41, 16.36, 31.89, 28.1, 11.1, 20.18, -24.31, -3.22, -13.61, 44.17, 2.86, 48.39]
+//state_margins = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+undecideds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+var options = [document.getElementById("1"), document.getElementById("2"), document.getElementById("3"), document.getElementById("4")]
+var labels = [document.getElementById("label1"), document.getElementById("label2"), document.getElementById("label3"), document.getElementById("label4")]
+
+$(document).ready(function() {
+    jQuery('#map').vectorMap({ 
+		map: 'usa_en',
+		backgroundColor: 'white',
+		borderColor: 'white',
+		hoverColor: 'black',
+		selectedColor: 'black',
+	});
+  });
+
+function change_candidate() {
+	var dropdown = document.getElementById("candidate")
+	if(dropdown.value == "trump"){
+		document.getElementById("image").src = TRUMP_IMG
+		document.getElementById("blurb").innerHTML = TRUMP_BLURB 
+	}
+	else{
+		document.getElementById("image").src = BIDEN_IMG
+		document.getElementById("blurb").innerHTML = BIDEN_BLURB
+	}
+}
+
+function round_precise(num, precision){
+	return Math.round(((num) + Number.EPSILON) * Math.pow(10, precision)) / Math.pow(10, precision)
+}
+
+function submit() {
+	if(week == 0){
+		document.getElementById("candidate").style.display = "none"
+		if(document.getElementById("candidate").value == "biden"){
+			candidate = "biden"
+			advisor_img = DILLON_IMG
+		}
+		for (i=0; i < states.length; i++) {
+			state_margins[i] = round_precise(state_margins[i] + ((Math.random() * 4) - 2), 2)
+		}
+	}
+	if(stage==2){
+		week = week + 1
+		document.getElementById("map").style.display = "none"
+		document.getElementById("options").style.display = "block"
+	}
+	
+	if(stage==1){
+		document.getElementById("image").style.display = "none"
+		document.getElementById("submit").style.display = "none"
+		document.getElementById("blurb").style.display = "block"
+		document.getElementById("blurb").innerHTML = "Choose a state to campaign in."
+		document.getElementById("title").style.display = "block"
+		document.getElementById("title").innerHTML = "Map"
+		polling = Array.from(state_margins)
+		polled_state_obj = ""
+		for (i=0; i < states.length; i++) {
+			polling[i] = round_precise(state_margins[i] + ((Math.random() * 6) - 3) + national_margin, 2)
+			undecideds[i] = round_precise(Math.max(1, (29 - week)/4 + ((Math.random() * 6) - 3)), 2)
+		}
+		for (i=0; i < states.length; i++) {
+			state_color = COLORS[6]
+			for (j=COLORS.length; j > 0; j--) {
+				if(polling[i] <= NUMBERS[j]) {
+					state_color = COLORS[j]
+				}
+			}
+			polled_state_obj = polled_state_obj + states[i].toLowerCase() + ": '" + state_color + "', "
+		}
+		polled_state_obj = eval("({"+polled_state_obj+"})")
+		jQuery('#map').vectorMap('set', 'colors', polled_state_obj);
+		jQuery('#map').bind('labelShow.jqvmap', function(event, code, region){event.preventDefault()});
+		jQuery('#map').bind('regionClick.jqvmap',
+			function(event, code, region)
+			{
+				if(state_lock == 1 && clicked_state == code){
+					document.getElementById("title").innerHTML = "Map"
+					document.getElementById("blurb").innerHTML = "Choose a state to campaign in."
+					state_lock = 0
+					clicked_state = ''
+				}
+				else{
+					document.getElementById("title").innerHTML = region
+					state_lock = 1
+					clicked_state = code
+					state = states.indexOf(code.toUpperCase())
+					document.getElementById("blurb").innerHTML = "Trump: " + round_precise((100 - undecideds[state])/2 + polling[state]/2, 2) + "%<br>Biden: " + round_precise((100 - undecideds[state])/2 - polling[state]/2, 2) + "%<br>Undecided: " + round_precise(undecideds[state], 2) + "%"
+				}
+			}
+		);	
+		jQuery('#map').bind('regionMouseOver.jqvmap',
+			function(event, code, region)
+			{
+				if(state_lock == 0) {
+					document.getElementById("title").innerHTML = region
+					state = states.indexOf(code.toUpperCase())
+					document.getElementById("blurb").innerHTML = "Trump: " + round_precise((100 - undecideds[state])/2 + polling[state]/2, 2) + "%<br>Biden: " + round_precise((100 - undecideds[state])/2 - polling[state]/2, 2) + "%<br>Undecided: " + round_precise(undecideds[state], 2) + "%"
+				}
+			}
+		);
+		document.getElementById("map").style.display = "block"
+		stage = stage + 1
+	}
+	if(stage == 0){
+		document.getElementById("image").src = advisor_img
+		document.getElementById("title").innerHTML = "Advisor"
+		document.getElementById("blurb").innerHTML = "Good luck!"
+		stage = stage + 1
+	}
+	
+}
+</script>
+</body>
+
+</html>
