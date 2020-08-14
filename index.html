@@ -154,20 +154,24 @@ event_names = {
   "Arizona and Texas have shown us how we can re-open quickly, but effectively.": ["change_state_margins('trump_base', 0, 0.25);change_margin(-0.25, 0.125);change_campaign_multiplier(0.125, 0.025)", "There is some skepticism among this plan due to predictions of a second wave in Arizona and Texas, but the country is slowly starting to work again."],
   "We can re-open in phases. This might be slower, but we can pacify all sides.": ["change_state_margins('trump_base', 0, 0.25);change_margin(0.25, 0.125);change_campaign_multiplier(-0.125, 0.025)", "We still will not be able to hold our large campaign rallies, but the nation as a whole is generally pleased with this plan."],
   "Let's talk with Andrew Cuomo of New York to see how he did it.": ["change_state_margins('trump_base', 0, -0.25);change_margin(0.25, 0.125);change_campaign_multiplier(0.125, 0.025)", "Conservative critics of New York's plan are baffled at this decision, but we can re-open fast and show bipartisanship with this."]
-}, []],
+}, ['coronavirus']],
 /*15*/"Now we Know the Crime": ["From your deep delve and extensive research, you've discovered quite a crime from this 'OBAMAGATE' investigation. It has got something to do with Michael Flynn, but Barack Obama is complicit, as is Vice-President Biden (although, unfortunately, Hillary is not). Quite a find!", "images/flynn.jpg",{ 
   "Interesting!": ["enable_tag('flynn')", "This is... definitely quite something. Perhaps this could really be the solution to our Biden problem."]
-}, []],
+}, ['obamagate']],
 /*16*/"What Crime?": ["It appears the press has gotten a hold of your OBAMAGATE tweet and some of your ramblings about the President and Michael Flynn. During one of your briefings, a CNN reporter has just stumped you with a key question that may blow up the entire inquiry: exactly what crime did Obama commit?", "images/you_know_the_crime.png",{ 
   "'You know the crime. The crime is very obvious to everyone.'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
   "'You're a nasty journalist. Incredibly nasty.'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
   "'Look — my uncle was a great professor and scientist and engineer, Dr. John Trump at MIT; good genes, very good genes, OK, very smart...'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
   "Explain the crime regarding Flynn in detail.": ["change_margin(0.05, 0.025);disable_tag('questioned')", "This is exactly what we needed. Now we just need to wait for the media to do their usual both-sidesism."]
 }, ['obamagate', 'flynn']],
-/*12*/"Her Last Words": ["A quintessential liberal of the Supreme Court and a fearless advocate for women's rights, Ruth Bader Ginsburg, has unfortunately made her last visit to the hospital and passed away. Needless to say, the Senate GOP and the Federalist Society are over the moon. How shall we pay respects to her?", "images/rbg.jpg",{ 
-  "Let's fill her seat with another committed fighter of women's rights, Justice Amy Coney Barrett.": ["change_margin(0, 0.1);change_campaign_multiplier(0.2, 0.1)", "Senate Democrats and liberals are upset at Mitch McConnell violating the rule he informally instated to block Merrick Garland, but the conservative base and the Federalist Society are very pleased with this development."], 
-  "We can leave her seat vacant in accordance with the McConnell rule, and to spice up conservative turnout.": ["change_margin(0.25, 0.125)", "Much like the 2016 elections, a vacant Supreme Court seat may be exactly what we need to get conservative voters back in the polling booths for you."]
-}, []],
+/*17*/"Testing Negatively Positive": ["This is extremely upsetting news. A recent test you took has come back with its results, and you've tested positive for COVID-19. On the bright side, you do seem healthy and doctors are convinced you will be fine, but you will need to keep your campaigning to a minimum and stay under quarantine.", "images/trump_coronavirus.png",{ 
+  "At least we can use this diagnosis for sympathy votes?": ["change_margin(0.25, 0.1);change_campaign_multiplier(-1, 0)", "At this time, any type of sympathy from the voters will do a lot to help."], 
+  "I need to campaign. I will lose otherwise.": ["change_campaign_multiplier(0.5, 0.25)", "This is not safe, but perhaps vigorous campaigning is the best medicine for you."]
+}, ['coronavirus']],
+/*18*/"The Untested Drug": ["The medical industry and research and development labs are rushing to develop cures and vaccines for coronavirus, but one medication looks particularly promising - hydroxychloroquine. Some of our donors have pitched the idea to us and even shown us a few studies of it working, but there's no medical consensus for the drug yet.", "images/hydroxychloroquine.png",{ 
+  "This seems interesting! Let's take their deal": ["change_margin(-0.25, 0.1);change_campaign_multiplier(0.5, 0.1)", "The extra money pouring in is quite helpful for our re-election efforts, although doctors opposing your statement is not."], 
+  "I will not be promoting untested drugs.": ["", "Seems like the appropriate thing to do."]
+}, ['coronavirus']],
 }
 
 ce_name = ""
