@@ -81,7 +81,7 @@ trump_score = 0
 trump_total = 0
 trump_count = 0
 
-disabled_tags = ['floyd', 'layafette', 'obamagate', 'completed', 'spacex']
+disabled_tags = ['floyd', 'layafette', 'obamagate', 'completed', 'spacex', 'flynn']
 trump_phase1_events = {2: 0.1, 3: 0.1, 4: 0.1, 5: 0.1, 6: 0.1, 7: 0.1, 8: 0.1, 9: 0.1, 10: 0.1, 11: 0.1, 12: 0.1}
 trump_events = [{0: 0.99, 1: 0.01}, trump_phase1_events, trump_phase1_events, trump_phase1_events, {13:1}, trump_phase1_events, trump_phase1_events, trump_phase1_events]
 biden_events = [{0: 1}]
@@ -117,10 +117,10 @@ event_names = {
   "Thank you, Mr. Jones!": ["change_margin(0.25, 0.125)", "Well done!"]
 }, []],
 /*7*/"What Crime?": ["It appears the press has gotten a hold of your OBAMAGATE tweet and some of your ramblings about the President and Michael Flynn. During one of your briefings, a CNN reporter has just stumped you with a key question that may blow up the entire inquiry: exactly what crime did Obama commit?", "images/you_know_the_crime.png",{ 
-  "'You know the crime. The crime is very obvious to everyone.'": ["change_margin(-0.05, 0.05)", "Please drop this inquiry, it really does not get us any more votes."],
-  "'You're a nasty journalist. Incredibly nasty.'": ["change_margin(-0.05, 0.05)", "Please drop this inquiry, it really does not get us any more votes."],
-  "'Look — my uncle was a great professor and scientist and engineer, Dr. John Trump at MIT; good genes, very good genes, OK, very smart...'": ["change_margin(-0.05, 0.05)", "Please drop this inquiry, it really does not get us any more votes."]
-}, ['obamagate']],
+  "'You know the crime. The crime is very obvious to everyone.'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
+  "'You're a nasty journalist. Incredibly nasty.'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
+  "'Look — my uncle was a great professor and scientist and engineer, Dr. John Trump at MIT; good genes, very good genes, OK, very smart...'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."]
+}, ['obamagate', 'questioned']],
 /*8*/"To Finity and Beyond!": ["One of your best African-American friends, Elon Musk, has approached NASA with an idea to promote his latest SpaceX project - something about a dragon. The entire project seems incredulous, but there's just one problem - your advisors are telling you that if you continue helping out Elon Musk, your oil and gas donors will be dissuaded from working with you.", "images/spacex.jpg",{ 
   "To hell with the donors. This is a small step for humanity and a giant leap for Donald Trump.": ["enable_tag('spacex');change_campaign_multiplier(-0.2, 0.05)", "You have quite the admiration for space, so this should help out in the long run if the project does succeed."], 
   "Let's tell him to slow his project down a notch.": ["change_campaign_multiplier(0.1, 0.05)", "Bucking Mr. Musk was quite risky, but our clean oil donors are very ecstatic. I'm on it to milk as much money out of this as possible."]
@@ -149,6 +149,24 @@ event_names = {
   "Rioting is not the answer. When the looting starts, the shooting starts.": ["change_margin(-0.175, 0.075);enable_tag('floyd')", "This is really going to change the state of the race."],
   "At least our economic numbers are looking up. Mr. Floyd will be proud of these numbers.": ["change_margin(-0.175, 0.075);enable_tag('floyd')", "This is really going to change the state of the race."],
   "We cannot let THUGS dishonor the memory of George Floyd.": ["change_margin(-0.175, 0.075);enable_tag('floyd')", "This is really going to change the state of the race."]
+}, []],
+/*14*/"Reopening": ["Let's face the facts - America, or at least your supporters, is dying to re-open. The economy is in free-fall, and the curve has already been flattened quite a bit. We need a solid plan to re-open the nation now, and luckily for us some states have already shown the nation how it can be done.", "images/reopening.png",{ 
+  "Arizona and Texas have shown us how we can re-open quickly, but effectively.": ["change_state_margins('trump_base', 0, 0.25);change_margin(-0.25, 0.125);change_campaign_multiplier(0.125, 0.025)", "There is some skepticism among this plan due to predictions of a second wave in Arizona and Texas, but the country is slowly starting to work again."],
+  "We can re-open in phases. This might be slower, but we can pacify all sides.": ["change_state_margins('trump_base', 0, 0.25);change_margin(0.25, 0.125);change_campaign_multiplier(-0.125, 0.025)", "We still will not be able to hold our large campaign rallies, but the nation as a whole is generally pleased with this plan."],
+  "Let's talk with Andrew Cuomo of New York to see how he did it.": ["change_state_margins('trump_base', 0, -0.25);change_margin(0.25, 0.125);change_campaign_multiplier(0.125, 0.025)", "Conservative critics of New York's plan are baffled at this decision, but we can re-open fast and show bipartisanship with this."]
+}, []],
+/*15*/"Now we Know the Crime": ["From your deep delve and extensive research, you've discovered quite a crime from this 'OBAMAGATE' investigation. It has got something to do with Michael Flynn, but Barack Obama is complicit, as is Vice-President Biden (although, unfortunately, Hillary is not). Quite a find!", "images/flynn.jpg",{ 
+  "Interesting!": ["enable_tag('flynn')", "This is... definitely quite something. Perhaps this could really be the solution to our Biden problem."]
+}, []],
+/*16*/"What Crime?": ["It appears the press has gotten a hold of your OBAMAGATE tweet and some of your ramblings about the President and Michael Flynn. During one of your briefings, a CNN reporter has just stumped you with a key question that may blow up the entire inquiry: exactly what crime did Obama commit?", "images/you_know_the_crime.png",{ 
+  "'You know the crime. The crime is very obvious to everyone.'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
+  "'You're a nasty journalist. Incredibly nasty.'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
+  "'Look — my uncle was a great professor and scientist and engineer, Dr. John Trump at MIT; good genes, very good genes, OK, very smart...'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
+  "Explain the crime regarding Flynn in detail.": ["change_margin(0.05, 0.025);disable_tag('questioned')", "This is exactly what we needed. Now we just need to wait for the media to do their usual both-sidesism."]
+}, ['obamagate', 'flynn']],
+/*12*/"Her Last Words": ["A quintessential liberal of the Supreme Court and a fearless advocate for women's rights, Ruth Bader Ginsburg, has unfortunately made her last visit to the hospital and passed away. Needless to say, the Senate GOP and the Federalist Society are over the moon. How shall we pay respects to her?", "images/rbg.jpg",{ 
+  "Let's fill her seat with another committed fighter of women's rights, Justice Amy Coney Barrett.": ["change_margin(0, 0.1);change_campaign_multiplier(0.2, 0.1)", "Senate Democrats and liberals are upset at Mitch McConnell violating the rule he informally instated to block Merrick Garland, but the conservative base and the Federalist Society are very pleased with this development."], 
+  "We can leave her seat vacant in accordance with the McConnell rule, and to spice up conservative turnout.": ["change_margin(0.25, 0.125)", "Much like the 2016 elections, a vacant Supreme Court seat may be exactly what we need to get conservative voters back in the polling booths for you."]
 }, []],
 }
 
@@ -317,7 +335,7 @@ function change_state_margins(state_list, min, max) {
 
 function change_campaign_multiplier(average, variance){
 	max = average + variance
-	min = average - variance
+	min = Math.max(0, average - variance)
 	range = max - min
 	campaign_multiplier = round_precise(campaign_multiplier + random_precise(min, max), 2)
 }
