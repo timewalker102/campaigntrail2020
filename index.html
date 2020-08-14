@@ -13,17 +13,18 @@
 <option value="trump">Donald Trump</option>
 <option value="biden">Joe Biden</option>
 </select>
-<div id="options" style="display:none">
-<span><input type="radio" id="1" name="options" value="1">
-<label for="1" id="label1">Option 1</label><br>
-<span><input type="radio" id="2" name="options" value="2">
-<label for="2" id="label2">Option 2</label><br>
-<span><input type="radio" id="3" name="options" value="3">
-<label for="3" id="label3">Option 3</label><br>
-<span><input type="radio" id="4" name="options" value="4">
-<label for="4" id="label4">Option 4</label><br>
-</div>
 <p id="blurb">Threatened by economic insecurity and a global health pandemic, Donald J. Trump is hoping to recreate the magic of 2016 and win another upset election. Challenges await, however: he presides as an incumbent over a slipping economy and national unrest, and will need to assure the American public that he can be trusted with another term. </p>
+<div id="options" style="display:none">
+<span><input type="radio" id="1" name="options" value="1" style="display:none">
+<label for="1" id="label1" style="display:none">Option 1</label><br>
+<span><input type="radio" id="2" name="options" value="2" style="display:none">
+<label for="2" id="label2" style="display:none">Option 2</label><br>
+<span><input type="radio" id="3" name="options" value="3" style="display:none">
+<label for="3" id="label3" style="display:none">Option 3</label><br>
+<span><input type="radio" id="4" name="options" value="4" style="display:none">
+<label for="4" id="label4" style="display:none">Option 4</label><br>
+</div>
+<span id="special_event" style="display:none"><button type="button" onclick="event_action(0)">Defect</button><button type="button" onclick="event_action(1)">Cooperate</button></span>
 <button type="button" onclick="submit()" id="submit">Submit</button>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="js/jquery.vmap.js"></script>
@@ -42,19 +43,123 @@ DILLON_IMG = "images/dillon.png"
 COLORS = ["#244999", "#577ccc", "#8aafff", "#9e8767", "#ff8b98", "#fe5864", "#d12531"]
 NUMBERS = [-10, -6, -3, 0, 3, 6, 10]
 
+map_title = "Map"
+map_blurb = "Choose a state to campaign in."
+map_third = "Undecided"
+
 week = 0
 stage = 0
 state_lock = 0
 clicked_state = ''
 national_margin = -6
-//national_margin = 0
 candidate = "trump"
 advisor_img = PARSCALE_IMG
+campaign_multiplier = 0.25
 
 states = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
 state_margins = [29.82, 16.83, 5.64, 29.02, -28.01, -2.81, -11.54, -84.68, -9.27, 3.3, 7.23, -30.08, 33.87, -14.96, 21.26, 11.51, 22.7, 31.94, 21.74, -0.86, -24.32, -25.1, 2.32, 0.58, 19.93, 20.74, 22.52, 27.15, -0.32, 1.73, -12, -6.11, -20.39, 5.75, 37.83, 10.23, 38.49, -8.88, 2.82, -13.41, 16.36, 31.89, 28.1, 11.1, 20.18, -24.31, -3.22, -13.61, 44.17, 2.86, 48.39]
-//state_margins = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 undecideds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+evs = [9, 3, 11, 6, 55, 9, 7, 3, 3, 29, 16, 4, 4, 20, 11, 6, 6, 8, 8, 4, 10, 11, 16, 10, 6, 10, 3, 5, 6, 4, 14, 5, 29, 15, 3, 18, 7, 7, 20, 4, 9, 3, 11, 38, 6, 3, 13, 12, 5, 10, 3]
+state_packs = {
+"seniors": {'ME': 1,'FL': 0.99,'WV': 0.94,'VT': 0.92,'MT': 0.81,'DE': 0.8,'HI': 0.77,'PA': 0.75,'NH': 0.74,'SC': 0.69,'OR': 0.68,'AZ': 0.68,'NM': 0.68,'RI': 0.65,'CT': 0.64,'MI': 0.64,'OH': 0.63,'IA': 0.62,'WI': 0.62,'AL': 0.62,'MO': 0.61,'AR': 0.6,'WY': 0.59,'SD': 0.58,'MA': 0.57,'KY': 0.56,'NY': 0.56,'TN': 0.55,'NC': 0.55,'NJ': 0.53,'ID': 0.51,'KS': 0.51,'MS': 0.51,'MN': 0.49,'NE': 0.49,'IN': 0.48,'NV': 0.48,'OK': 0.48,'IL': 0.47,'LA': 0.46,'VA': 0.46,'MD': 0.45,'WA': 0.45,'ND': 0.44,'CA': 0.34,'CO': 0.33,'GA': 0.28,'TX': 0.15,'AK': 0.08,'DC': 0.05,'UT': 0},
+"trump_base": {'AL': 0.6,'AK': 0.17,'AZ': 0.04,'AR': 0.47,'CA': 0,'CO': 0.22,'CT': 0.49,'DE': 0.62,'DC': 0.2,'FL': 0.46,'GA': 0.25,'HI': 0.66,'ID': 0.02,'IL': 0.3,'IN': 0.7,'IA': 0.89,'KS': 0.21,'KY': 0.64,'LA': 0.5,'ME': 0.8,'MD': 0.3,'MA': 0.07,'MI': 0.71,'MN': 0.47,'MS': 0.7,'MO': 0.73,'MT': 0.54,'NE': 0.38,'NV': 0.5,'NH': 0.49,'NJ': 0.54,'NM': 0.23,'NY': 0.59,'NC': 0.42,'ND': 0.87,'OH': 0.81,'OK': 0.35,'OR': 0.21,'PA': 0.61,'RI': 0.78,'SC': 0.5,'SD': 0.78,'TN': 0.58,'TX': 0.05,'UT': 0.21,'VT': 0.41,'VA': 0.22,'WA': 0.09,'WV': 1,'WI': 0.58,'WY': 0.36},
+"left": {'VT': 1,'AK': 0.89,'ID': 0.85,'ND': 0.82,'UT': 0.8,'HI': 0.72,'ME': 0.63,'CO': 0.62,'MN': 0.58,'KS': 0.57,'WI': 0.55,'NV': 0.54,'NH': 0.52,'MI': 0.52,'IL': 0.51,'MO': 0.51,'WA': 0.51,'WY': 0.5,'CA': 0.49,'OK': 0.44,'OR': 0.44,'IA': 0.43,'MA': 0.42,'AZ': 0.41,'SD': 0.39,'RI': 0.37,'IN': 0.34,'MT': 0.34,'NC': 0.33,'TX': 0.31,'WV': 0.31,'NM': 0.31,'PA': 0.29,'NE': 0.29,'OH': 0.28,'NY': 0.27,'VA': 0.26,'CT': 0.26,'KY': 0.26,'TN': 0.25,'FL': 0.24,'AR': 0.21,'NJ': 0.2,'DE': 0.15,'SC': 0.14,'MD': 0.1,'GA': 0.07,'AL': 0.05,'MS': 0.01,'LA': 0,'DC': 0}
+}
+
+current_event = 0
+event_length = 0
+special_event_tick = 0
+special_event_lengths = [5]
+special_event_blurbs = [
+"Nancy Pelosi arrives at the White House, and is seated in front of you and Vice-President Pence. She looks suave as ever with her coat and sunglasses, almost in a manner to intimidate you. Unfortunately for her, you are the king of negotations, even writing the world-famous bestseller the 'Art of the Deal'. Tough luck, Nancy!</br></br>While negotiating, you may either DEFECT to play hardball and demand more, or COOPERATE to work with Pelosi and accept her demands. If both sides DEFECt, there is a two way loss. If both sides COOPERATE, there is a two way gain. If one side cooperates and the other defects, the cooperating side loses. However, do remember that Pelosi does hold some cards - if she loses too much, she may reject the deal entirely."]
+
+pelosi_choice = 0
+pelosi_friendliness = Math.random()
+pelosi_perception = Math.random()
+pelosi_score = 0
+trump_score = 0
+trump_total = 0
+trump_count = 0
+
+disabled_tags = ['floyd', 'layafette', 'obamagate', 'completed', 'spacex']
+trump_phase1_events = {2: 0.1, 3: 0.1, 4: 0.1, 5: 0.1, 6: 0.1, 7: 0.1, 8: 0.1, 9: 0.1, 10: 0.1, 11: 0.1, 12: 0.1}
+trump_events = [{0: 0.99, 1: 0.01}, trump_phase1_events, trump_phase1_events, trump_phase1_events, {13:1}, trump_phase1_events, trump_phase1_events, trump_phase1_events]
+biden_events = [{0: 1}]
+event_names = {
+/*0*/"Coronavirus Briefings": ["The novel coronavirus has struck America, and cases are rapidly rising. You have remarked that cases will go down to zero in the past, but clearly this is not the case. Americans are gradually beginning to fear this new impending threat, and it is time to act. How do you want to show a response publicly?", "images/briefings.jpg",{ 
+  "Personally give Presidential briefings to the public.": ["change_margin(-0.25, 2)", "This is a very risky move as you have a habit of saying the wrong thing at times, but let's see how it goes."], 
+  "Create a coronavirus task force and let Vice-President Pence speak to the public.": ["change_margin(0.4, 0.5)", "Mr. Pence is a much less erratic speaker when given a teleprompter, but the Democrats are going to pounce on your apparent lack of leadership."],
+  "Do not give briefings to the public.": ["", "This is a very neutral move and presents little opportunity but also very little threats."]
+}, []], 
+/*1*/"Coronavirus: Mission Accomplished": ["Despite fearmongering from Joe Biden and the rest of the Democratic Party, you have ultimately been proven right in regards to COVID-19, and cases have ultimately spiked down. Worldwide, it is clear coronavirus was a overhyped issue, and now you are free to fight the election on your own terms.", "images/accomplished.jpg",{ 
+  "Take a victory lap.": ["change_margin(2, 0.25);disable_tag('coronavirus')", "You deserve this one."]
+}, []],
+/*2*/"The Elusive Joe Biden": ["Unlike Hillary Clinton, Vice-President Joe Biden is a much more difficult candidate for you to attack. His favorability ratings are much higher and there are no easy scandals to tie him into. Various advisors are suggesting various different attacks to dig into Joe Biden, but what are your ideas?", "images/elusive_biden.jpg",{ 
+  "Question Biden's mental acuity. Is he really well in the mind?": ["change_state_margins('seniors', 0.25, -1)", "This may seem an enticing attack, but seniors disapprove of this attack as they see it as an affront on them. Additionally, setting low expectations for Biden at the debate is not a good idea!"],
+  "The Vice-President has been in politics for the last 50 years. Hit him on being the establishment.": ["change_margin(0, 0.25)", "This can cut into Biden's critiques of you into a little bit, but this largely does not stick with the electorate as they see you as the incumbent and thus the one responsible for the state of the nation."],
+  "There is still a lot of unfinished business with Hunter Biden and Ukraine.": ["change_margin(-1, 0.25)", "Incredibly delusional move. All this does is remind the American people that you were impeached."],
+  "Let's not get bogged down in attacks and instead make a positive case for my re-election.": ["change_margin(1, 0.25)", "This is an intelligent move, considering your high disapproval numbers."],
+}, []],
+/*3*/"World Health Organization": ["The World Health Organization has not been very helpful in both your re-election efforts and attempts to contain the coronavirus. However, the organization relies quite heavily on American funding, and cutting this funding off would be a show of strength to your base. Is it worth angering the international community to do so?", "images/who.jpg",{ 
+  "The WUHAN Health Organization must go!": ["change_margin(-0.025, 0.01);change_state_margins('trump_base', -0.25, 0.25)", "Your base loves this red meat. However, don't forget to appeal to swing voters as well."], 
+  "No, it is not a battle we should fight right now.": ["change_margin(0.025, 0.01)", "Your restraint astounds a few, and there are already a dozen articles talking about your new tone!"]
+}, ['coronavirus']],
+/*4*/"OBAMAGATE!": ["Barack Obama. Corruption. CRIME! It is very clear to you that no-good Barack Hussein Obama attempted to stop you in some way during the 2016 elections, but you've had trouble finding any evidence for it. Lately, however, while browsing Twitter something about Obama caught your eye.", "images/obamagate.png",{ 
+  "This is definitely worth looking into.": ["enable_tag('obamagate')", "I'm not entirely sure why you tweeted out 'OBAMAGATE!', please stop for your own good."], 
+  "No, it is not a battle we should fight right now.": ["", "Bah, it must have been some nonsense conspiracy."]
+}, ['coronavirus']],
+/*5*/"Operation Michigander Freedom": ["It is pretty disappointing how the Governor of Michigan, Gretchen Whitmer, has been so hateful to you. Such an overall nasty woman, and let's be honest, she's only doing this in some sort of vain hope that Joe Biden will pick her for VP (which he won't - SAD!). What is the best way to respond to her and her ruthless lockdown policy?", "images/whitmer.jpg",{ 
+  "The protestors are right. We need to LIBERATE MICHIGAN!": ["change_state_margins('trump_base', -0.1, 0.25);change_state_margins(['MI'], -0.1, -0.1)", "Your base might love that you're fighting for them, but picking a fight with a popular Governor is not a good idea right now."], 
+  "I have more pressing issues than the Governor right now.": ["change_state_margins('trump_base', 0.05, -0.1)", "Your base is a little bit disappointed that you're not sticking up for them, but this really isn't a battle worth fighting anyway."],
+  "The best antidote to hate is kindness. Let's negotiate with the Governor.": ["change_state_margins('trump_base', 0.1, -0.25);change_state_margins(['MI'], 0.1, 0.1)", "The negotiations have gone spectacularly well! Some in your base are disappointed that you 'sold out' to the Governor, but Michigan has more supplies and likes you much more for the deal."]
+}, ['coronavirus']],
+/*6*/"Vernon Jones": ["Who said Joe Biden had a monopoly on the black vote? Just yesterday, a great state representative from the state of Georgia, Vernon Jones, just endorsed you for President over Biden despite being a black Democrat. This is proof that there is bipartisanship support for your re-election!", "images/vernon_jones.jpg",{ 
+  "Thank you, Mr. Jones!": ["change_margin(0.25, 0.125)", "Well done!"]
+}, []],
+/*7*/"What Crime?": ["It appears the press has gotten a hold of your OBAMAGATE tweet and some of your ramblings about the President and Michael Flynn. During one of your briefings, a CNN reporter has just stumped you with a key question that may blow up the entire inquiry: exactly what crime did Obama commit?", "images/you_know_the_crime.png",{ 
+  "'You know the crime. The crime is very obvious to everyone.'": ["change_margin(-0.05, 0.05)", "Please drop this inquiry, it really does not get us any more votes."],
+  "'You're a nasty journalist. Incredibly nasty.'": ["change_margin(-0.05, 0.05)", "Please drop this inquiry, it really does not get us any more votes."],
+  "'Look — my uncle was a great professor and scientist and engineer, Dr. John Trump at MIT; good genes, very good genes, OK, very smart...'": ["change_margin(-0.05, 0.05)", "Please drop this inquiry, it really does not get us any more votes."]
+}, ['obamagate']],
+/*8*/"To Finity and Beyond!": ["One of your best African-American friends, Elon Musk, has approached NASA with an idea to promote his latest SpaceX project - something about a dragon. The entire project seems incredulous, but there's just one problem - your advisors are telling you that if you continue helping out Elon Musk, your oil and gas donors will be dissuaded from working with you.", "images/spacex.jpg",{ 
+  "To hell with the donors. This is a small step for humanity and a giant leap for Donald Trump.": ["enable_tag('spacex');change_campaign_multiplier(-0.2, 0.05)", "You have quite the admiration for space, so this should help out in the long run if the project does succeed."], 
+  "Let's tell him to slow his project down a notch.": ["change_campaign_multiplier(0.1, 0.05)", "Bucking Mr. Musk was quite risky, but our clean oil donors are very ecstatic. I'm on it to milk as much money out of this as possible."]
+}, []],
+/*9*/"CARES Act": ["Due to the unprecedented economic impact the coronavirus and statewide shutdowns are creating, it's clear that a stimulus bill is necessary to protect the economy. Of course, since the Democrats control the House of Representatives, this means negotiations with Her.", "images/pelosi.jpg",{ 
+  "We can negotiate with her.": ["special_event(0)", "You have quite the admiration for space, so this should help out in the long run if the project does succeed."], 
+  "I'm busy running for President. Mitch can negotiate with her.": ["change_margin(0.45, 0.25)", "Mitch McConnell is an effective negotiator, and he's brought us a bipartisan deal that will quell the bleeding."],
+  "Let's play hardball and pin the blame on Pelosi and the Democrats for not getting a deal.": ["change_margin(-2.25, 0.25)", "This is an incredibly stupid idea, and this will only make your re-election campaign worse off as the economy dives into freefall."]
+}, ['coronavirus']],
+/*10*/"Bernie Endorsement": ["Mr. Sanders has given it all, but unfortunately it looks like he has lost his second and perhaps final primary campaign. This morning, he officially conceded the race and endorsed Joe Biden in a widely viewed endorsement video. What are your thoughts on this, Mr. President? ", "images/bernie_endorsement.png",{ 
+  "Bernie's people love me on trade. We can peel over some of his votes.": ["change_state_margins('left', 0.05, -0.01)", "This might not be entirely effective, but those extra votes in the Rust Belt really could help us out."],
+  "This is simply more proof that Joe Biden is a radical left Democrat.": ["change_margin(-0.05, 0.07);change_campaign_multiplier(0.1, 0.05)", "Voters are finding it hard to believe that Joe Biden is a radical socialist, but we can really scare off our Wall Street donors with this message and keep them donating."],
+  "Let's throw them a bigger bone. I'm endorsing Medicare 4 All.": ["change_margin(0, 2);change_state_margins('left', 1, -0.5);change_campaign_multiplier(-0.2, 0.05)", "This is a really risky move that could completely upend the race. Senator Sanders has publicly denounced your endorsement of Medicare for All, but let's see how this goes."]
+}, []],
+/*11*/"Ahmaud Arbery": ["This morning, quite a stunning video was released. A trio of white men can be seen chasing a young, unarmed black man and fatally shooting him in the state of Georgia. Not only that, despite the event occurring on February, the police department has made no arrests. This has sparked quite the outcry.", "images/arbery.jpg",{ 
+  "Georgia Governor Brian Kemp is definitely to blame here. Let's force his hand and get something done.": ["change_state_margins(['GA'], -0.25, -0.25);change_margin(0.25, 0.125)", "Some action has been taken and the nation appreciates your leadership, but Mr. Kemp is quite exasperated at you throwing him under the bus."],
+  "Don't always believe what the lamestream media tells you. I doubt this video is real.": ["change_state_margins('trump_base', -0.15, 0.25)", "This response has only fuelled the outcry even more and unveiled more racial tensions. But perhaps division is a good tactic for you."],
+  "This is absolutely preposterous. We need to denounce racism once and for all.": ["change_state_margins('trump_base', 0.25, -0.05)", "Your statement has been powerful and well-received by even your greatest critics. Some in your hardcore base have scoffed, but they aren't the be all end all."],
+  "I could not care less. Something will take these guys' attention away next week anyway.": ["", "This is a surprising move considering you could have shown real leadership here or at least solidified with your base, but you are quite right in that the public will forget about this within the week."]
+}, []],
+/*12*/"Her Last Words": ["A quintessential liberal of the Supreme Court and a fearless advocate for women's rights, Ruth Bader Ginsburg, has unfortunately made her last visit to the hospital and passed away. Needless to say, the Senate GOP and the Federalist Society are over the moon. How shall we pay respects to her?", "images/rbg.jpg",{ 
+  "Let's fill her seat with another committed fighter of women's rights, Justice Amy Coney Barrett.": ["change_margin(0, 0.1);change_campaign_multiplier(0.2, 0.1)", "Senate Democrats and liberals are upset at Mitch McConnell violating the rule he informally instated to block Merrick Garland, but the conservative base and the Federalist Society are very pleased with this development."], 
+  "We can leave her seat vacant in accordance with the McConnell rule, and to spice up conservative turnout.": ["change_margin(0.25, 0.125)", "Much like the 2016 elections, a vacant Supreme Court seat may be exactly what we need to get conservative voters back in the polling booths for you."]
+}, []],
+/*13*/"George Floyd": ["'I can't breathe.'. These were the last words of George Floyd, a man strangulated to death by a police officer. But these words did not die with him. They are still being heard. They are echoing across the nation. This country is crying out for leadership, and we need to respond.", "images/floyd.png",{
+  "Rioting is not the answer. When the looting starts, the shooting starts.": ["change_margin(-0.175, 0.075);enable_tag('floyd')", "This is really going to change the state of the race."],
+  "At least our economic numbers are looking up. Mr. Floyd will be proud of these numbers.": ["change_margin(-0.175, 0.075);enable_tag('floyd')", "This is really going to change the state of the race."],
+  "We cannot let THUGS dishonor the memory of George Floyd.": ["change_margin(-0.175, 0.075);enable_tag('floyd')", "This is really going to change the state of the race."]
+}, []],
+}
+
+ce_name = ""
+ce_description = ""
+ce_image = ""
+ce_advisor_blurb = "Good luck!"
+ce_function = ""
+ce_option_names = []
+ce_option_advisor_blurbs = []
+ce_option_functions = []
 
 var options = [document.getElementById("1"), document.getElementById("2"), document.getElementById("3"), document.getElementById("4")]
 var labels = [document.getElementById("label1"), document.getElementById("label2"), document.getElementById("label3"), document.getElementById("label4")]
@@ -67,7 +172,37 @@ $(document).ready(function() {
 		hoverColor: 'black',
 		selectedColor: 'black',
 	});
-  });
+	jQuery('#map').bind('labelShow.jqvmap', function(event, code, region){event.preventDefault()});
+	jQuery('#map').bind('regionClick.jqvmap',
+	function(event, code, region)
+	{
+		if(state_lock == 1 && clicked_state == code){
+			document.getElementById("title").innerHTML = map_title
+			document.getElementById("blurb").innerHTML = map_blurb
+			document.getElementById("submit").style.display = "none"
+			state_lock = 0
+			clicked_state = ''
+		}
+		else{
+			document.getElementById("title").innerHTML = region
+			document.getElementById("submit").style.display = "block"
+			state_lock = 1
+			clicked_state = code
+			state = states.indexOf(code.toUpperCase())
+			document.getElementById("blurb").innerHTML = "Trump: " + round_precise((100 - undecideds[state])/2 + polling[state]/2, 2) + "%<br>Biden: " + round_precise((100 - undecideds[state])/2 - polling[state]/2, 2) + "%<br>" + map_third + ": " + round_precise(undecideds[state], 2) + "%"
+		}
+	});	
+	jQuery('#map').bind('regionMouseOver.jqvmap',
+	function(event, code, region)
+	{
+		if(state_lock == 0 && map_title == "Map") {
+			document.getElementById("title").innerHTML = region
+			state = states.indexOf(code.toUpperCase())
+			document.getElementById("blurb").innerHTML = "Trump: " + round_precise((100 - undecideds[state])/2 + polling[state]/2, 2) + "%<br>Biden: " + round_precise((100 - undecideds[state])/2 - polling[state]/2, 2) + "%<br>" + map_third + ": " + round_precise(undecideds[state], 2) + "%"
+		}
+	});
+});
+
 
 function change_candidate() {
 	var dropdown = document.getElementById("candidate")
@@ -85,6 +220,253 @@ function round_precise(num, precision){
 	return Math.round(((num) + Number.EPSILON) * Math.pow(10, precision)) / Math.pow(10, precision)
 }
 
+function random_precise(min, max){
+	return (Math.random() * (max - min) + min)
+}
+
+function get_event(){
+	list = trump_events
+	if(candidate=="biden"){
+		list = biden_events
+	}
+	if(week > list.length - 1){
+		ce_option_functions = ["get_election_results(0)", "get_election_results(0)", "get_election_results(0)", "get_election_results(0)"]
+		ce_function = "get_election_results(0)"
+		return false;
+	}
+	console.log("event starting")
+	events = {...list[week]}
+	events_to_delete = []
+	for(i = 0; i < Object.keys(events).length; i++){
+		deletion = false
+		event_to_check = Object.keys(events)[i]
+		tags = Object.values(event_names)[event_to_check][3]
+		for(j = 0; j < disabled_tags.length; j++) {
+			if(tags.indexOf(disabled_tags[j]) != -1){
+				deletion = true
+			}
+		}
+		if(deletion == true){
+			events_to_delete.push(i)
+		}
+	}
+	for(i = events_to_delete.length - 1; i>=0; i--){
+		delete events[Object.keys(events)[events_to_delete[i]]]
+	}
+	numbers = []
+	total = 0
+	for(i = 0; i < Object.keys(events).length; i++){
+		tot = Object.values(events)[i]
+		total = total + tot 
+	}
+	for(i = 0; i < Object.keys(events).length; i++){
+		events[Object.keys(events)[i]] = Object.values(events)[0]/total
+	}
+	num = 0
+	for (i = 0; i < Object.keys(events).length; i++){
+		p = parseFloat(Object.values(events)[i])
+		numbers.push(num + p)
+		num = num + p
+	}
+	random_num = Math.random()
+	event = -1
+	for (i = Object.keys(events).length - 1; i >= 0; i--){
+		if(random_num <= numbers[i]){
+			event = Object.keys(events)[i]
+		}
+	}
+	event_names[Object.keys(event_names)[event]][3].push('completed')
+	ce_name = Object.keys(event_names)[event]
+	ce_description = Object.values(event_names)[event][0]
+	ce_image = Object.values(event_names)[event][1]
+	ce_options = Object.values(event_names)[event][2]
+	ce_option_names = Object.keys(ce_options)
+	ce_option_functions = []
+	ce_option_advisor_blurbs = []
+	for (i = 0; i < Object.values(ce_options).length; i++){
+		ce_option_functions.push(Object.values(ce_options)[i][0])
+		ce_option_advisor_blurbs.push(Object.values(ce_options)[i][1])
+	}
+}
+
+function change_margin(average, variance) {
+	max = average + variance
+	min = average - variance
+	range = max - min
+	national_margin = round_precise(national_margin + random_precise(min, max), 2)
+}
+
+function change_state_margins(state_list, min, max) {
+	if(typeof state_list == "string"){
+		state_list = state_packs[state_list]
+	}
+	else if(Array.isArray(state_list)){
+		var state_dict = {}
+		for(i = 0;i < state_list.length;i++){
+			state_dict[state_list[i]] = 1
+		}
+		state_list = state_dict
+	}
+	range = max - min
+	for (i = 0; i< Object.keys(state_list).length; i++){
+		state = states.indexOf(Object.keys(state_list)[i])
+		change = Object.values(state_list)[i] * range + min
+		state_margins[state] = state_margins[state] + change
+	}
+}
+
+function change_campaign_multiplier(average, variance){
+	max = average + variance
+	min = average - variance
+	range = max - min
+	campaign_multiplier = round_precise(campaign_multiplier + random_precise(min, max), 2)
+}
+
+function campaign() { 
+	multiplier = 1
+	if (candidate=="biden"){multiplier = -1}
+	state_margins[state] = state_margins[state] + (multiplier * campaign_multiplier)
+}
+
+function disable_tag(tag) {
+	disabled_tags.push(tag)
+}
+
+function enable_tag(tag) {
+	if(disabled_tags.indexOf(tag) >= 0) {
+		disabled_tags.splice(disabled_tags.indexOf(tag), 1)
+	}
+}
+
+function special_event(event){
+	current_event = event
+	event_length = special_event_lengths[event]
+	current_tick = 0
+	document.getElementById("submit").style.display = "none"
+	document.getElementById("special_event").style.display = "inline"
+	document.getElementById("image").style.display = "block"
+	document.getElementById("image").src = ce_image
+	document.getElementById("blurb").innerHTML = special_event_blurbs[event]
+	document.getElementById("title").innerHTML = ce_name
+}
+	
+function event_action(action){
+	special_event_tick = special_event_tick + 1
+	if(current_event == 0){
+		trump_choice = action
+		trump_count = trump_count + 1
+		trump_total = trump_total + trump_choice
+		trump_average = trump_total / trump_count
+		pelosi_choice = 0
+		if(Math.random() < pelosi_friendliness){pelosi_choice = 1}
+		double_cooperate_blurbs = ["With some sweet talking, you deliver a win-win on this part!", "Pelosi might be a Nasty Democrat, but you get a bipartisan guarantee on this proposal.", "You cooperation works wonders as this part of the deal goes through.", "Both sides needed to make a compromise, but the clause goes through!"]
+		double_hardball_blurbs = ["You throw her a proposal, but it is far too conservative for Pelosi to handle.", "Both of you are discussing over each other's heads, and this clause fails.", "You and Pelosi push each other far too much to get a win on this clause.", "Pelosi offers some liberal claptrap, there's no way you can let that part through!"]
+		trump_win_blurbs = ["The negotiator from the Art of the Deal strikes again! You've played Pelosi by playing hardball", "An absolute win as you negotiate Pelosi into a corner!", "You play hardball and even Vice-President Pence is surprised at your negotiation skills.", "Pelosi tries to backtrack, but eventually relents on this clause. Big win!"]
+		pelosi_win_blurbs = ["You might have cooperated a bit too much, since Pelosi is beaming at your naivety.", "You think you won bigly, but Vice-President Pence gives you a disapproving nod - perhaps you ceded too much?", "This part might be a bit too liberal for the Senate GOP; that nasty woman has done it again.", "Pelosi negotiates you into a corner, how could you let her fool you so?"]
+		results = [[[-0.5, -0.5, double_hardball_blurbs], [1.5 , -1, trump_win_blurbs]], [[-1, 1.5, pelosi_win_blurbs], [1, 1, double_cooperate_blurbs]]]
+		trump_result = results[trump_choice][pelosi_choice][0]
+		pelosi_result = results[trump_choice][pelosi_choice][1]
+		trump_score = trump_score + trump_result
+		pelosi_score = pelosi_score + pelosi_result
+		blurb = "</br></br>While negotiating, you may either DEFECT to play hardball and demand more, or COOPERATE to work with Pelosi and accept her demands. If both sides DEFECT, there is a two way loss. If both sides COOPERATE, there is a two way gain. If one side cooperates and the other defects, the cooperating side loses. However, do remember that Pelosi does hold some cards - if she loses too much, she may reject the deal entirely."
+		document.getElementById("blurb").innerHTML = results[trump_choice][pelosi_choice][2][Math.floor(random_precise(0,4))] + blurb
+		pelosi_friendliness = pelosi_friendliness + ((trump_average - pelosi_friendliness)*0.1*pelosi_perception)
+		if(pelosi_score < -1){
+			ce_advisor_blurb = "You must have pressured Nancy Pelosi far too much, as the Democrats are entirely unhappy with this deal and have rejected it entirely. This is really going to cost us and the economy."
+			ce_function = "change_margin(-1.5, 0)"
+		}
+		else if(pelosi_score > trump_score + 2.5){
+			ce_advisor_blurb = "This deal is a really big win for the Democrats, and the Senate GOP is very unhappy at you for letting this happen. Still, at least we got a deal through."
+			ce_function = "change_margin(-0.1, 0)"
+		}
+		else if(pelosi_score > trump_score){
+			ce_advisor_blurb = "Although this deal is a bit slanted to Pelosi and the Democratic Party, it's a fair compromise knowing your negotiation skills. It'll do."
+			ce_function = "change_margin(0.2, 0)"
+		}
+		else if(pelosi_score == trump_score){
+			ce_advisor_blurb = "Ah, is compromise not the heart of democracy? Both sides are equally unhappy with the deal yet also equally happy with it. Let's just leave it at that and watch the economy start to recover." 
+			ce_function = "change_margin(0.45, 0)"
+		}
+		else if(trump_score > pelosi_score + 2.5){
+			ce_advisor_blurb = "Even Senate Majority Leader Mitch McConnell is quite surprised at how big of a deal you won against Pelosi. This is clearly the Art of the Deal maestro at work."
+			ce_function = "change_margin(1, 0)"
+		}
+		else if(trump_score > pelosi_score){
+			ce_advisor_blurb = "Not only did you negotiate a deal that will save the economy, you also did one that benefits your agenda. This is something to be proud of, and a big win for you."
+			ce_function = "change_margin(0.7, 0)"
+		}
+	}
+	if(special_event_tick == special_event_lengths[current_event]){
+		document.getElementById("special_event").style.display = "none"
+		document.getElementById("submit").style.display = "inline"
+		ce_option_functions = [ce_function, ce_function, ce_function, ce_function]
+		ce_option_advisor_blurbs = [ce_advisor_blurb, ce_advisor_blurb, ce_advisor_blurb, ce_advisor_blurb] 		
+		stage = 0
+	}
+}
+
+function get_election_results(type){
+	if(type == 0){
+		document.getElementById("map").style.display = "none"
+		document.getElementById("image").style.display = "block"
+		document.getElementById("image").src = "images/election_results.png"
+		document.getElementById("options").style.display = "block"
+		document.getElementById("blurb").style.display = "block"
+		document.getElementById("blurb").innerHTML = "How would you like to view the election results?"
+		document.getElementById("title").style.display = "block"
+		document.getElementById("title").innerHTML = "Election Results"
+		ce_option_names = ["View the final results."]
+		document.getElementById("submit").setAttribute("onClick", "javascript: get_election_results(1);");
+		for (i=1; i < 5; i++){
+			document.getElementById(i.toString()).style.display = "none"
+			document.getElementById("label" + i.toString()).style.display = "none"
+		}
+		for (i=1; i < ce_option_names.length + 1; i++){
+			document.getElementById(i.toString()).style.display = "inline"
+			document.getElementById("label" + i.toString()).style.display = "inline"
+			document.getElementById("label" + i.toString()).innerHTML = ce_option_names[i - 1]
+		}
+	}
+	if(type == 1){
+		trump_evs = 0
+		biden_evs = 0
+		map_title = "Election Results"
+		map_third = "Other"
+		map_blurb = blurb
+		document.getElementById("options").style.display = "none"
+		document.getElementById("image").style.display = "none"
+		document.getElementById("submit").style.display = "none"
+		document.getElementById("blurb").style.display = "block"
+		document.getElementById("title").style.display = "block"
+		document.getElementById("title").innerHTML = map_title
+		map_title = "Election Results"
+		polling = Array.from(state_margins)
+		polled_state_obj = ""
+		state_lock = 0
+		clicked_state = ''
+		for (i=0; i < states.length; i++) {
+			polling[i] = round_precise(state_margins[i] + national_margin, 2)
+			undecideds[i] = round_precise(random_precise(0, 3), 2)
+		}
+		for (i=0; i < states.length; i++) {
+			state_color = COLORS[6]
+			if(polling[i] < 0) {
+				state_color = COLORS[0]
+				biden_evs = biden_evs + evs[i]
+				evs[i] = 0
+			}
+			trump_evs = trump_evs + evs[i]
+			polled_state_obj = polled_state_obj + states[i].toLowerCase() + ": '" + state_color + "', "
+		}
+		polled_state_obj = eval("({"+polled_state_obj+"})")
+		jQuery('#map').vectorMap('set', 'colors', polled_state_obj);
+		document.getElementById("map").style.display = "block"
+		stage = -1
+		map_blurb = "Trump: " + trump_evs + " EVs<br>Biden: " + biden_evs + " EVs<br><br>Click on a state for more detailed results."
+		document.getElementById("blurb").innerHTML = map_blurb
+	}
+}
+
 function submit() {
 	if(week == 0){
 		document.getElementById("candidate").style.display = "none"
@@ -93,16 +475,40 @@ function submit() {
 			advisor_img = DILLON_IMG
 		}
 		for (i=0; i < states.length; i++) {
-			state_margins[i] = round_precise(state_margins[i] + ((Math.random() * 4) - 2), 2)
+			state_margins[i] = round_precise(state_margins[i] + random_precise(-2, 2), 2)
 		}
 	}
 	if(stage==2){
+		campaign()
+		result = get_event()
+		if(result == false){
+			stage = 0
+			submit()
+			return false;
+		}
 		week = week + 1
 		document.getElementById("map").style.display = "none"
+		document.getElementById("image").style.display = "block"
+		document.getElementById("image").src = ce_image
 		document.getElementById("options").style.display = "block"
+		document.getElementById("blurb").style.display = "block"
+		document.getElementById("blurb").innerHTML = ce_description
+		document.getElementById("title").style.display = "block"
+		document.getElementById("title").innerHTML = ce_name
+		for (i=1; i < 5; i++){
+			document.getElementById(i.toString()).style.display = "none"
+			document.getElementById("label" + i.toString()).style.display = "none"
+		}
+		for (i=1; i < ce_option_names.length + 1; i++){
+			document.getElementById(i.toString()).style.display = "inline"
+			document.getElementById("label" + i.toString()).style.display = "inline"
+			document.getElementById("label" + i.toString()).innerHTML = ce_option_names[i - 1]
+		}
+		stage = stage+1
 	}
 	
 	if(stage==1){
+		console.log("showing map")
 		document.getElementById("image").style.display = "none"
 		document.getElementById("submit").style.display = "none"
 		document.getElementById("blurb").style.display = "block"
@@ -111,9 +517,22 @@ function submit() {
 		document.getElementById("title").innerHTML = "Map"
 		polling = Array.from(state_margins)
 		polled_state_obj = ""
+		state_lock = 0
+		clicked_state = ''
 		for (i=0; i < states.length; i++) {
-			polling[i] = round_precise(state_margins[i] + ((Math.random() * 6) - 3) + national_margin, 2)
-			undecideds[i] = round_precise(Math.max(1, (29 - week)/4 + ((Math.random() * 6) - 3)), 2)
+			error_bars = {1:0.66, 2:0.9, 3:0.95, 4:1}
+			random_num = Math.random()
+			variance = 1
+			for(j = Object.values(error_bars).length - 1; j >= 0; j--){
+				if(random_num < Object.values(error_bars)[j]){
+					variance = Object.keys(error_bars)[j]
+				}
+			}
+			error = random_precise(variance - 1, variance)
+			direction = random_precise(-1, 1)
+			direction = direction / Math.abs(direction)
+			polling[i] = round_precise(state_margins[i] + national_margin + (error*direction), 2)
+			undecideds[i] = round_precise(Math.max(1, (29 - week)/4 + random_precise(-3, 3)), 2)
 		}
 		for (i=0; i < states.length; i++) {
 			state_color = COLORS[6]
@@ -126,45 +545,27 @@ function submit() {
 		}
 		polled_state_obj = eval("({"+polled_state_obj+"})")
 		jQuery('#map').vectorMap('set', 'colors', polled_state_obj);
-		jQuery('#map').bind('labelShow.jqvmap', function(event, code, region){event.preventDefault()});
-		jQuery('#map').bind('regionClick.jqvmap',
-			function(event, code, region)
-			{
-				if(state_lock == 1 && clicked_state == code){
-					document.getElementById("title").innerHTML = "Map"
-					document.getElementById("blurb").innerHTML = "Choose a state to campaign in."
-					state_lock = 0
-					clicked_state = ''
-				}
-				else{
-					document.getElementById("title").innerHTML = region
-					state_lock = 1
-					clicked_state = code
-					state = states.indexOf(code.toUpperCase())
-					document.getElementById("blurb").innerHTML = "Trump: " + round_precise((100 - undecideds[state])/2 + polling[state]/2, 2) + "%<br>Biden: " + round_precise((100 - undecideds[state])/2 - polling[state]/2, 2) + "%<br>Undecided: " + round_precise(undecideds[state], 2) + "%"
-				}
-			}
-		);	
-		jQuery('#map').bind('regionMouseOver.jqvmap',
-			function(event, code, region)
-			{
-				if(state_lock == 0) {
-					document.getElementById("title").innerHTML = region
-					state = states.indexOf(code.toUpperCase())
-					document.getElementById("blurb").innerHTML = "Trump: " + round_precise((100 - undecideds[state])/2 + polling[state]/2, 2) + "%<br>Biden: " + round_precise((100 - undecideds[state])/2 - polling[state]/2, 2) + "%<br>Undecided: " + round_precise(undecideds[state], 2) + "%"
-				}
-			}
-		);
 		document.getElementById("map").style.display = "block"
 		stage = stage + 1
 	}
 	if(stage == 0){
+		for(i = 1; i < 5; i++){
+			checkbox = document.getElementById(i.toString())
+			if(checkbox.checked){
+				checkbox.checked = "False"
+				ce_advisor_blurb = ce_option_advisor_blurbs[i-1]
+				ce_function = ce_option_functions[i-1]
+			}
+		}
+		document.getElementById("1").checked = true
 		document.getElementById("image").src = advisor_img
+		document.getElementById("options").style.display = "none"
 		document.getElementById("title").innerHTML = "Advisor"
-		document.getElementById("blurb").innerHTML = "Good luck!"
+		document.getElementById("blurb").innerHTML = ce_advisor_blurb
+		eval(ce_function)
 		stage = stage + 1
 	}
-	
+	stage = stage % 3
 }
 </script>
 </body>
