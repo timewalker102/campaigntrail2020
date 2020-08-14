@@ -63,7 +63,8 @@ evs = [9, 3, 11, 6, 55, 9, 7, 3, 3, 29, 16, 4, 4, 20, 11, 6, 6, 8, 8, 4, 10, 11,
 state_packs = {
 "seniors": {'ME': 1,'FL': 0.99,'WV': 0.94,'VT': 0.92,'MT': 0.81,'DE': 0.8,'HI': 0.77,'PA': 0.75,'NH': 0.74,'SC': 0.69,'OR': 0.68,'AZ': 0.68,'NM': 0.68,'RI': 0.65,'CT': 0.64,'MI': 0.64,'OH': 0.63,'IA': 0.62,'WI': 0.62,'AL': 0.62,'MO': 0.61,'AR': 0.6,'WY': 0.59,'SD': 0.58,'MA': 0.57,'KY': 0.56,'NY': 0.56,'TN': 0.55,'NC': 0.55,'NJ': 0.53,'ID': 0.51,'KS': 0.51,'MS': 0.51,'MN': 0.49,'NE': 0.49,'IN': 0.48,'NV': 0.48,'OK': 0.48,'IL': 0.47,'LA': 0.46,'VA': 0.46,'MD': 0.45,'WA': 0.45,'ND': 0.44,'CA': 0.34,'CO': 0.33,'GA': 0.28,'TX': 0.15,'AK': 0.08,'DC': 0.05,'UT': 0},
 "trump_base": {'AL': 0.6,'AK': 0.17,'AZ': 0.04,'AR': 0.47,'CA': 0,'CO': 0.22,'CT': 0.49,'DE': 0.62,'DC': 0.2,'FL': 0.46,'GA': 0.25,'HI': 0.66,'ID': 0.02,'IL': 0.3,'IN': 0.7,'IA': 0.89,'KS': 0.21,'KY': 0.64,'LA': 0.5,'ME': 0.8,'MD': 0.3,'MA': 0.07,'MI': 0.71,'MN': 0.47,'MS': 0.7,'MO': 0.73,'MT': 0.54,'NE': 0.38,'NV': 0.5,'NH': 0.49,'NJ': 0.54,'NM': 0.23,'NY': 0.59,'NC': 0.42,'ND': 0.87,'OH': 0.81,'OK': 0.35,'OR': 0.21,'PA': 0.61,'RI': 0.78,'SC': 0.5,'SD': 0.78,'TN': 0.58,'TX': 0.05,'UT': 0.21,'VT': 0.41,'VA': 0.22,'WA': 0.09,'WV': 1,'WI': 0.58,'WY': 0.36},
-"left": {'VT': 1,'AK': 0.89,'ID': 0.85,'ND': 0.82,'UT': 0.8,'HI': 0.72,'ME': 0.63,'CO': 0.62,'MN': 0.58,'KS': 0.57,'WI': 0.55,'NV': 0.54,'NH': 0.52,'MI': 0.52,'IL': 0.51,'MO': 0.51,'WA': 0.51,'WY': 0.5,'CA': 0.49,'OK': 0.44,'OR': 0.44,'IA': 0.43,'MA': 0.42,'AZ': 0.41,'SD': 0.39,'RI': 0.37,'IN': 0.34,'MT': 0.34,'NC': 0.33,'TX': 0.31,'WV': 0.31,'NM': 0.31,'PA': 0.29,'NE': 0.29,'OH': 0.28,'NY': 0.27,'VA': 0.26,'CT': 0.26,'KY': 0.26,'TN': 0.25,'FL': 0.24,'AR': 0.21,'NJ': 0.2,'DE': 0.15,'SC': 0.14,'MD': 0.1,'GA': 0.07,'AL': 0.05,'MS': 0.01,'LA': 0,'DC': 0}
+"left": {'VT': 1,'AK': 0.89,'ID': 0.85,'ND': 0.82,'UT': 0.8,'HI': 0.72,'ME': 0.63,'CO': 0.62,'MN': 0.58,'KS': 0.57,'WI': 0.55,'NV': 0.54,'NH': 0.52,'MI': 0.52,'IL': 0.51,'MO': 0.51,'WA': 0.51,'WY': 0.5,'CA': 0.49,'OK': 0.44,'OR': 0.44,'IA': 0.43,'MA': 0.42,'AZ': 0.41,'SD': 0.39,'RI': 0.37,'IN': 0.34,'MT': 0.34,'NC': 0.33,'TX': 0.31,'WV': 0.31,'NM': 0.31,'PA': 0.29,'NE': 0.29,'OH': 0.28,'NY': 0.27,'VA': 0.26,'CT': 0.26,'KY': 0.26,'TN': 0.25,'FL': 0.24,'AR': 0.21,'NJ': 0.2,'DE': 0.15,'SC': 0.14,'MD': 0.1,'GA': 0.07,'AL': 0.05,'MS': 0.01,'LA': 0,'DC': 0},
+"christians": {'AL': 1,'MS': 0.98,'TN': 0.92,'LA': 0.85,'SC': 0.83,'WV': 0.82,'AR': 0.81,'GA': 0.75,'OK': 0.74,'NC': 0.72,'KY': 0.72,'TX': 0.71,'UT': 0.68,'VA': 0.67,'MO': 0.61,'OH': 0.58,'SD': 0.58,'NM': 0.55,'NE': 0.54,'FL': 0.52,'KS': 0.51,'WY': 0.51,'IN': 0.5,'IA': 0.5,'AZ': 0.48,'PA': 0.47,'ND': 0.47,'MI': 0.46,'NJ': 0.46,'ID': 0.46,'IL': 0.44,'MD': 0.44,'RI': 0.42,'MT': 0.4,'DE': 0.4,'HI': 0.38,'DC': 0.37,'CA': 0.36,'MN': 0.36,'CO': 0.35,'NV': 0.35,'NY': 0.33,'WA': 0.31,'OR': 0.31,'AK': 0.31,'WI': 0.29,'CT': 0.28,'ME': 0.08,'MA': 0.04,'NH': 0.04,'VT': 0}
 }
 
 current_event = 0
@@ -172,6 +173,19 @@ event_names = {
   "This seems interesting! Let's take their deal": ["change_margin(-0.25, 0.1);change_campaign_multiplier(0.5, 0.1)", "The extra money pouring in is quite helpful for our re-election efforts, although doctors opposing your statement is not."], 
   "I will not be promoting untested drugs.": ["", "Seems like the appropriate thing to do."]
 }, ['coronavirus']],
+/*19*/"Obama Portrait": ["Although it is tradition for Presidents to unveil the portraits of their predecessor, it is possible to make an exception in this case. After all, Barack Obama wasn't even a legitimate President, the man still hasn't released his real birth certificate! Surely you can anger the liberals by refusing to unveil his Presidential portrait?", "images/obama_portrait.png",{ 
+  "Barack 'Hussein' Obama's portrait does not deserve to hang on this great house!": ["change_margin(-0.05, 0.01);change_state_margins('trump_base', 0, 0.1)", "The 'libs' have been owned, but at what cost?"], 
+  "This just seems immature. We can unveil the portrait.": ["change_margin(0.05, 0.01)", "Upholding the usual traditions calms many in the nation."]
+}, []],
+/*20*/"Federal Aid": ["After letting rioters and looters completely ruin the once-great city of Minneapolis, the Governor of Minnesota Tim Walz is BEGGING you for federal aid for the city! Quite a sad conundrum! Do we show STRENGTH and deny him or attempt to work with the government of Minnesota?", "images/walz.jpg",{ 
+  "He should have listened to me. Too bad, Tim!": ["change_state_margins('trump_base', 0, 0.5);change_state_margins(['MN'], -0.5, -0.5", "Minnesota is hurting and you've dealt them a big blow, but nationwide, conservatives are happy with your show of strength."], 
+  "Tim is a moron, but Minnesota is important.": ["change_state_margins(['MN'], 0.75, 0.75)", "Minnesotans are quite pleased with your federal funding and aid in the state."]
+}, ['floyd']],
+/*21*/"Layfette Square": ["The economy is weakening. Riots are everywhere. Racial justice is a core issue. At this time, your faith leader tells you, the one thing we need to show is religiosity. Faith sees best in the dark, and during these dark times, we need to reinforce people's faith in a higher being.", "images/layafette.png",{ 
+  "This is so true. Let's take a photo at a church to show my religious beliefs.": ["change_state_margins('christians', -0.25, 0.75);enable_tag('layafette')", "Your faith leader is pleased at this development, and numbers seem to be looking up. Shame about those protestors we had to gas to get to that church though..."],
+  "Let's give an interview to the press about my religious beliefs.": ["change_margin(0, 1)", "Letting you speak is always a coin toss. Let's hope this interview goes well."],
+  "Bah. Religion isn't that important.": ["", "Fair point, it's better for us to look ahead."]
+}, ['floyd']],
 }
 
 ce_name = ""
