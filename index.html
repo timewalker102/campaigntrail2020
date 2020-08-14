@@ -37,8 +37,7 @@ BIDEN_BLURB = "After a hard-fought primary with endless twists and turns, Vice-P
 
 TRUMP_IMG = "images/trump.jpg"
 BIDEN_IMG = "images/biden.jpeg"
-PARSCALE_IMG = "images/parscale.jpg"
-DILLON_IMG = "images/dillon.png"
+advisors = {'parscale': "images/parscale.jpg", 'dillon': "images/dillon.png", 'stepien': "images/stepien.jpg", 'ballard': "images/ballard.jpg", 'surabian': "images/surabian.png"}
 
 COLORS = ["#244999", "#577ccc", "#8aafff", "#9e8767", "#ff8b98", "#fe5864", "#d12531"]
 NUMBERS = [-10, -6, -3, 0, 3, 6, 10]
@@ -53,7 +52,7 @@ state_lock = 0
 clicked_state = ''
 national_margin = -6
 candidate = "trump"
-advisor_img = PARSCALE_IMG
+advisor_img = advisors['parscale']
 campaign_multiplier = 0.25
 
 states = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
@@ -203,6 +202,16 @@ event_names = {
 /*26*/"We Have Liftoff": ["After extensive research and development by NASA and SpaceX and your African-American friend Elon Musk, the demo for the Dragon something rocket is FINALLY happening! Today is a great day to be an American!", "images/crew_dragon.png",{ 
   "Great activity and success!": ["change_margin(0.25, 0.125", "Congratulations to the astronauts that left the Earth today. Good choice."]
 }, ['spacex']],
+/*27*/"Tulsa Rally": ["After a long period of time, it appears that we can finally conduct rallies. Many advisors have been suggesting a rally in Tulsa, Oklahoma, where you can meet many of your most loyal fans to invigorate your campaign  and get you back on the campaign trail. Does this seem feasible to you?", "images/tulsa.png",{ 
+  "Onwards to Tulsa!.": ["change_margin(-0.75, 0.25)", "The rally did not go as planned, and we had some low turnout. On the other hand, however, our A-game is finally on, and we can now conduct much stronger campaigns in states!"], 
+  "No, let's play it safe. No rallies yet.": ["", "Playing it safe seems like a wise move. We won't see any campaigning boosts, but we won't get any pushback for bad rallies either."]
+}, []],
+/*28*/"New Campaign Manager": ["Within your inner circle, there is quite some discontent about Brad Parscale, your current campaign manager. There are a wealth of alternatives to consider. However this is not an easy decision to make; changing horses midstream is a risk and could project weakness.", "images/republican.png",{ 
+  "Let's go with Bill Stepien. He is a tried-and-tested Christie alum.": ["change_margin(0, 1);change_advisor('stepien')", "I'm proud to be working with you, Mr. President."],
+  "Let's go with Brian Ballard. He is a fundraising maestro.": ["change_campaign_multiplier(0, 0.125);change_advisor('ballard')", "I'm proud to be working with you, Mr. President."],  
+  "Let's go with Andy Surabian. He can win me back the voters who elected me in 2016.": ["change_state_margins('trump_base', -0.25, 0.25);change_advisor('surabian')", "I'm proud to be working with you, Mr. President."],  
+  "No, I'll stick with Brad Parscale.": ["", "Thanks for the vote of confidence, Mr. President."]  
+}, []],
 }
 
 ce_name = ""
@@ -276,6 +285,11 @@ function round_precise(num, precision){
 function random_precise(min, max){
 	return (Math.random() * (max - min) + min)
 }
+
+function change_advisor(advisor){
+	advisor_img = advisors[advisor]
+}
+	
 
 function get_event(){
 	list = trump_events
@@ -525,7 +539,7 @@ function submit() {
 		document.getElementById("candidate").style.display = "none"
 		if(document.getElementById("candidate").value == "biden"){
 			candidate = "biden"
-			advisor_img = DILLON_IMG
+			change_advisor('dillon')
 		}
 		for (i=0; i < states.length; i++) {
 			state_margins[i] = round_precise(state_margins[i] + random_precise(-2, 2), 2)
@@ -561,7 +575,6 @@ function submit() {
 	}
 	
 	if(stage==1){
-		console.log("showing map")
 		document.getElementById("image").style.display = "none"
 		document.getElementById("submit").style.display = "none"
 		document.getElementById("blurb").style.display = "block"
@@ -610,12 +623,12 @@ function submit() {
 				ce_function = ce_option_functions[i-1]
 			}
 		}
+		eval(ce_function)
 		document.getElementById("1").checked = true
 		document.getElementById("image").src = advisor_img
 		document.getElementById("options").style.display = "none"
 		document.getElementById("title").innerHTML = "Advisor"
 		document.getElementById("blurb").innerHTML = ce_advisor_blurb
-		eval(ce_function)
 		stage = stage + 1
 	}
 	stage = stage % 3
