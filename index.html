@@ -24,12 +24,21 @@
 <span><input type="radio" id="4" name="options" value="4" style="display:none">
 <label for="4" id="label4" style="display:none">Option 4</label><br>
 </div>
-<span id="special_event" style="display:none"><button type="button" onclick="event_action(0)">Defect</button><button type="button" onclick="event_action(1)">Cooperate</button></span>
+<span id="special_event" style="display:none"><button type="button" onclick="event_action(0)" id="event1">Defect</button><button type="button" onclick="event_action(1)" id="event2">Cooperate</button></span>
+<table style="display:none" id="convention_speakers"></table>
 <button type="button" onclick="submit()" id="submit">Submit</button>
+<style>
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid black;
+}
+</style>
 <script type="text/javascript" src="//code.jquery.com/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="js/jquery.vmap.js"></script>
 <script type="text/javascript" src="js/jquery.vmap.usa.js" charset="utf-8"></script>
-
 <script>
 
 TRUMP_BLURB = "Threatened by economic insecurity and a global health pandemic, Donald J. Trump is hoping to recreate the magic of 2016 and win another upset election. Challenges await, however: he presides as an incumbent over a slipping economy and national unrest, and will need to assure the American public that he can be trusted with another term. "
@@ -69,9 +78,11 @@ state_packs = {
 current_event = 0
 event_length = 0
 special_event_tick = 0
-special_event_lengths = [5, 7]
+special_event_lengths = [5, 7, 2000]
 special_event_blurbs = [
-"Nancy Pelosi arrives at the White House, and is seated in front of you and Vice-President Pence. She looks suave as ever with her coat and sunglasses, almost in a manner to intimidate you. Unfortunately for her, you are the king of negotations, even writing the world-famous bestseller the 'Art of the Deal'. Tough luck, Nancy!</br></br>While negotiating, you may either DEFECT to play hardball and demand more, or COOPERATE to work with Pelosi and accept her demands. If both sides DEFECt, there is a two way loss. If both sides COOPERATE, there is a two way gain. If one side cooperates and the other defects, the cooperating side loses. However, do remember that Pelosi does hold some cards - if she loses too much, she may reject the deal entirely."]
+"Nancy Pelosi arrives at the White House, and is seated in front of you and Vice-President Pence. She looks suave as ever with her coat and sunglasses, almost in a manner to intimidate you. Unfortunately for her, you are the king of negotations, even writing the world-famous bestseller the 'Art of the Deal'. Tough luck, Nancy!</br></br>While negotiating, you may either DEFECT to play hardball and demand more, or COOPERATE to work with Pelosi and accept her demands. If both sides DEFECt, there is a two way loss. If both sides COOPERATE, there is a two way gain. If one side cooperates and the other defects, the cooperating side loses. However, do remember that Pelosi does hold some cards - if she loses too much, she may reject the deal entirely.",
+"",
+"Choose a speaker from the drop-down list, and click SELECT to add them to the convention list. To remove a speaker, click REMOVE on the table next to their name. Different speakers have different bonuses, try mix and match with their bonuses!"]
 
 pelosi_choice = 0
 pelosi_friendliness = Math.random()
@@ -83,9 +94,44 @@ trump_count = 0
 
 convention_location = 'NC'
 
-disabled_tags = ['floyd', 'layafette', 'obamagate', 'completed', 'spacex', 'flynn', 'tulsa', 'fauci', 'sun_belt_convention', 'no_heroes']
+republican_speakers = {
+"bush": ["Pres. George Bush", {"Moderate Republicans": 2, "Latinos": 1}, "TX", 0, "Once a nationally unpopular figure, George Bush is now a popular former President who brings strong support among traditional Republicans and some support among Latinos."],
+"blackburn": ["Sen. Marsha Blackburn", {"Trump Republicans": 2, "Christians": 1}, "TN", 0, "A committed Christian but also a fierce ally of yours, Marsha Blackburn has strong conservative and religious bona-fides."],
+"cotton": ["Sen. Tom Cotton", {"Trump Republicans": 1, "Seniors": 1, "Youth": 1}, "AR", 0, "Tom Cotton is a firebrand, but one with good coalition-building skills. Cotton brings boosts with seniors, the youth, and Trump Republicans."],
+"cruz": ["Sen. Ted Cruz", {"Christians": 2, "Latinos": 1}, "TX", 0, "A committed Christian, Ted Cruz has strong roots with the evangelical base but also some support among Latinos."],
+"grassley": ["Sen. Chuck Grassley", {"Moderate Republicans": 3}, "IA", 0, "As the most senior Senator in the Republican caucus, Grassley is the archetypal establishment Republican and would help bring those voters back to the fold."],
+"hawley": ["Sen. Josh Hawley", {"Trump Republicans": 1, "Left Populists": 1, "Youth": 1}, "MO", 0, "Josh Hawley holds unconventional Republican opinions, and thus has some sway with left populists. He also brings support with the youth and good connections with Trump Republicans."],
+"perdue": ["Sen. David Perdue", {"Trump Republicans": 2, "Seniors": 1}, "GA", 0, "David Perdue has worked with you extensively on immigration, but is also an established Georgia politician with senior appeal."],
+"portman": ["Sen. Rob Portman", {"Moderate Republicans": 1, "Seniors": 2}, "OH", 0, "Rob Portman is a well-established Ohio politician, and would speak well to moderate Republicans and seniors."],
+"romney": ["Sen. Mitt Romney", {"Moderate Republicans": 1, "Moderate Democrats": 1, "Christians": 1}, "UT", 0, "Mitt Romney is a prominent NeverTrumper with support among both moderate Republicans and moderate Democrats, but also has strong Christian roots."],
+"rubio": ["Sen. Marco Rubio", {"Youth": 1, "Latinos": 2}, "FL", 0, "Marco Rubio is very popular with the Latino base, but also has some youth popularity from his Presidential run."],
+"scott": ["Sen. Rick Scott", {"Seniors": 2, "Latinos": 1}, "FL", 0, "A former Governor of Florida, Rick Scott is adept at speaking to seniors, and has some experience in campaigning to Latinos as well."],
+"tim_scott": ["Sen. Tim Scott", {"Seniors": 1, "African-Americans": 2}, "SC", 0, "South Carolina Senator Tim Scott can speak to the aging base of the state, and also has a reasonable ability to work with African-Americans."],
+"abbott": ["Gov. Greg Abbott", {"Moderate Democrats": 1, "African-Americans": 1, "Latinos": 1}, "TX", 0, "Texas is the most diverse state in the nation, and its Governor Abbott knows how to speak to a very diverse coalition of voters."],
+"baker": ["Gov. Charlie Baker", {"Moderate Republicans": 1, "Moderate Democrats": 2}, "MA", 0, "As a liberal Republican governing a blue state, Governor Baker can strongly speak to moderate Democrats, but also has some sway with moderate Republicans."],
+"desantis": ["Gov. Ron DeSantis", {"Youth": 1, "African-Americans": 1, "Latinos": 1}, "FL", 0, "Ron DeSantis is a jack-of-all-trades, with decent approval ratings among the youth, African-Americans, and Latinos in Florida."],
+"dewine": ["Gov. Mike DeWine", {"Seniors": 3}, "OH", 0, "Adored for strong handling of the pandemic, Mike DeWine would work well in comforting seniors and bringing them back to the Republican fold."],
+"ducey": ["Gov. Doug Ducey", {"Moderate Democrats": 1, "Latinos": 2}, "AZ", 0, "After winning on the same ticket as Kyrsten Sinema in 2018, Mike Ducey knows how to speak to swing voters and moderates as well as Latinos."],
+"hogan": ["Gov. Larry Hogan", {"Moderate Republicans": 2, "Moderate Democrats": 1}, "MD", 0, "Hogan is a blue state governor with some conservative bonafides, and thus would speak strongly to moderate Republicans but also to moderate Democrats."],
+"justice": ["Gov. Jim Justice", {"Trump Republicans": 3}, "WV", 0, "As a former Democratic Governor who switched parties to work with your agenda, Justice is adored by the Trump base that elected you in 2016."],
+"kemp": ["Gov. Brian Kemp", {"Trump Republicans": 1, "Youth": 1, "Christians": 1}, "GA", 0, "Despite being one of your more loyal allies and copying your campaign style in his 2018 race, Kemp also manages to succed in a very young state and keeps to his Christian faith."],
+"reynolds": ["Gov. Kim Reynolds", {"Christians": 3}, "IA", 0, "After gaining praise for signing one of the most restrictive abortion laws in the nation, Kim Reynolds has received widespread praise from Christians."],
+"crenshaw": ["Rep. Dan Crenshaw", {"Youth": 2, "Christians": 1}, "TX", 0, "Texas Rep. Crenshaw is a prominent young Republican who works with the youth, and also a steadfast Christian with deeply-rooted Judeo-Christian values."],
+"garcia": ["Rep. Mike Garcia", {"Moderate Republicans": 1, "Youth": 1, "Latinos": 1}, "CA", 0, "Garcia stunningly won an upset race in a swing district and is considered a young rising star that can talk to moderate Republicans and win back Latinos."],
+"stefanik": ["Rep. Elise Stefanik", {"Trump Republicans": 1, "Youth": 2}, "NY", 0, "Not only was Elise Stefanik one of your most staunch defenders during impeachment, she also has a strong base with the youth."],
+"isakson": ["Fmr. Sen. Johnny Isakson", {"Moderate Republicans": 1, "African-Americans": 2}, "GA", 0, "Being a respected political figure in Georgia, Johnny Isakson can assauge the fears of moderate Republicans and reach out to rural African-Americans."],
+"lieberman": ["Fmr. Sen. Joe Lieberman", {"Moderate Democrats": 3}, "CT", 0, "As a former Democrat, bringing Joe Lieberman into the fold would be very potent at reaching moderate Democrats away from their party."],
+"haley": ["Fmr. Gov. Nikki Haley", {"Moderate Republicans": 1, "African-Americans": 1, "Latinos": 1}, "SC", 0, "Often considered an establishment successor to you, Nikki Haley would be a strong pick to reach out to suburbanites but also minorities."],
+"pence": ["Fmr. Gov. Mike Pence", {"Moderate Republicans": 1, "Christians": 2}, "IN", 1, "Giving Mike Pence a convention spot after abandoning him from the ticket would help out at appeasing the establishment Republicans that originally picked him and the evangelicals that adore him."],
+"shapiro": ["Ben Shapiro", {"Youth": 3}, "", 0, "Although often mocked on the Internet, Shapiro is one of the few conservative intellectuals to gain a viewership with a very young audience, and would be able to speak to them."],
+"carlson": ["Tucker Carlson", {"Left Populists": 3}, "", 0, "Known for views outside the Republican economic mainstream, giving Carlson a speaking spot could be a strategic move to peel off left-leaning Democrats."]
+}
+convention_speakers = []
+
+disabled_tags = ['floyd', 'layafette', 'obamagate', 'completed', 'spacex', 'flynn', 'lewis', 'tulsa', 'fauci', 'sun_belt_convention', 'no_heroes']
 trump_phase1_events = {2: 0.04, 3: 0.04, 4: 0.04, 5: 0.04, 6: 0.04, 7: 0.04, 8: 0.04, 9: 0.04, 10: 0.04, 11: 0.04, 12: 0.01, 14: 0.04, 15: 0.1, 16: 0.04, 17: 0.01, 18: 0.04, 19: 0.04, 20: 0.04, 21: 0.08, 22: 0.04, 23: 0.04, 24: 0.04, 25: 0.04, 26: 0.04}
-trump_events = [{0: 0.99, 1: 0.01}, trump_phase1_events, trump_phase1_events, trump_phase1_events, {13:1}, trump_phase1_events, trump_phase1_events, trump_phase1_events]
+trump_phase2_events = {28: 0.04, 29: 0.04, 30: 0.04, 31: 0.04, 32: 0.04, 33: 0.04, 34: 0.04, 35: 0.04, 36: 0.03, 37: 0.04, 38: 0.04, 39: 0.04, 41: 0.04, 42: 0.04, 43: 0.04, 44: 0.04, 45: 0.04, 46: 0.04, 47: 0.04, 48: 0.04, 49: 0.04, 50: 0.04, 51: 0.08, 25: 0.03, 12: 0.0025, 19: 0.0075}
+trump_events = [{0: 0.99, 1: 0.01}, trump_phase1_events, trump_phase1_events, trump_phase1_events, {13:1}, trump_phase1_events, trump_phase1_events, trump_phase1_events, {27: 1}, trump_phase2_events, trump_phase2_events, trump_phase2_events, trump_phase2_events, {40: 1}, trump_phase2_events, trump_phase2_events]
 biden_events = [{0: 1}]
 event_names = {
 /*0*/"Coronavirus Briefings": ["The novel coronavirus has struck America, and cases are rapidly rising. You have remarked that cases will go down to zero in the past, but clearly this is not the case. Americans are gradually beginning to fear this new impending threat, and it is time to act. How do you want to show a response publicly?", "images/briefings.jpg",{ 
@@ -160,7 +206,7 @@ event_names = {
 /*15*/"Now we Know the Crime": ["From your deep delve and extensive research, you've discovered quite a crime from this 'OBAMAGATE' investigation. It has got something to do with Michael Flynn, but Barack Obama is complicit, as is Vice-President Biden (although, unfortunately, Hillary is not). Quite a find!", "images/flynn.jpg",{ 
   "Interesting!": ["enable_tag('flynn')", "This is... definitely quite something. Perhaps this could really be the solution to our Biden problem."]
 }, ['obamagate']],
-/*16*/"What Crime?": ["It appears the press has gotten a hold of your OBAMAGATE tweet and some of your ramblings about the President and Michael Flynn. During one of your briefings, a CNN reporter has just stumped you with a key question that may blow up the entire inquiry: exactly what crime did Obama commit?", "images/you_know_the_crime.png",{ 
+/*16*/"But What Crime?": ["It appears the press has gotten a hold of your OBAMAGATE tweet and some of your ramblings about the President and Michael Flynn. During one of your briefings, a CNN reporter has just stumped you with a key question that may blow up the entire inquiry: exactly what crime did Obama commit?", "images/you_know_the_crime.png",{ 
   "'You know the crime. The crime is very obvious to everyone.'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
   "'You're a nasty journalist. Incredibly nasty.'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
   "'Look — my uncle was a great professor and scientist and engineer, Dr. John Trump at MIT; good genes, very good genes, OK, very smart...'": ["change_margin(-0.05, 0.05);disable_tag('questioned')", "Please drop this inquiry, it really does not get us any more votes."],
@@ -171,7 +217,7 @@ event_names = {
   "I need to campaign. I will lose otherwise.": ["change_campaign_multiplier(0.5, 0.25)", "This is not safe, but perhaps vigorous campaigning is the best medicine for you."]
 }, ['coronavirus']],
 /*18*/"The Untested Drug": ["The medical industry and research and development labs are rushing to develop cures and vaccines for coronavirus, but one medication looks particularly promising - hydroxychloroquine. Some of our donors have pitched the idea to us and even shown us a few studies of it working, but there's no medical consensus for the drug yet.", "images/hydroxychloroquine.png",{ 
-  "This seems interesting! Let's take their deal": ["change_margin(-0.25, 0.1);change_campaign_multiplier(0.5, 0.1)", "The extra money pouring in is quite helpful for our re-election efforts, although doctors opposing your statement is not."], 
+  "This seems interesting! Let's take their deal.": ["change_margin(-0.25, 0.1);change_campaign_multiplier(0.5, 0.1)", "The extra money pouring in is quite helpful for our re-election efforts, although doctors opposing your statement is not."], 
   "I will not be promoting untested drugs.": ["", "Seems like the appropriate thing to do."]
 }, ['coronavirus']],
 /*19*/"Obama Portrait": ["Although it is tradition for Presidents to unveil the portraits of their predecessor, it is possible to make an exception in this case. After all, Barack Obama wasn't even a legitimate President, the man still hasn't released his real birth certificate! Surely you can anger the liberals by refusing to unveil his Presidential portrait?", "images/obama_portrait.png",{ 
@@ -179,7 +225,7 @@ event_names = {
   "This just seems immature. We can unveil the portrait.": ["change_margin(0.05, 0.01)", "Upholding the usual traditions calms many in the nation."]
 }, []],
 /*20*/"Federal Aid": ["After letting rioters and looters completely ruin the once-great city of Minneapolis, the Governor of Minnesota Tim Walz is BEGGING you for federal aid for the city! Quite a sad conundrum! Do we show STRENGTH and deny him or attempt to work with the government of Minnesota?", "images/walz.jpg",{ 
-  "He should have listened to me. Too bad, Tim!": ["change_state_margins('trump_base', 0, 0.5);change_state_margins(['MN'], -0.5, -0.5", "Minnesota is hurting and you've dealt them a big blow, but nationwide, conservatives are happy with your show of strength."], 
+  "He should have listened to me. Too bad, Tim!": ["change_state_margins('trump_base', 0, 0.5);change_state_margins(['MN'], -0.5, -0.5)", "Minnesota is hurting and you've dealt them a big blow, but nationwide, conservatives are happy with your show of strength."], 
   "Tim is a moron, but Minnesota is important.": ["change_state_margins(['MN'], 0.75, 0.75)", "Minnesotans are quite pleased with your federal funding and aid in the state."]
 }, ['floyd']],
 /*21*/"Layfette Square": ["The economy is weakening. Riots are everywhere. Racial justice is a core issue. At this time, your faith leader tells you, the one thing we need to show is religiosity. Faith sees best in the dark, and during these dark times, we need to reinforce people's faith in a higher being.", "images/layafette.png",{ 
@@ -198,8 +244,8 @@ event_names = {
   "We cannot let such unfiltered nonsense into the Republican Party!.": ["change_margin(0.25, 0.125)", "This is the bare minimum, but a forceful condemnation of conspiracy nonsense is good for us."]
 }, []],
 /*25*/"The Conscience of Congress": ["A valiant fighter for civil rights and a man described as the 'conscience of Congress', John Lewis, has unfortunately passed away this morning. Many people have had political and policy disagreements with him, but we cannot disagree with the fact that the man has fundamentally stood for the right values.", "images/lewis.jpg",{ 
-  "We must hold a state funeral for a good man like him.": ["change_margin(0.375, 0.125)", "May Rep. Lewis rest in power."], 
-  "He didn't attend my inauguration. Why should I attend his funeral?": ["change_margin(-0.25, 0.125)", "This is just incredibly petty and the rest of the nation has already begun denouncing you."]
+  "We must hold a state funeral for a good man like him.": ["change_margin(0.375, 0.125);enable_tag('lewis')", "May Rep. Lewis rest in power."], 
+  "He didn't attend my inauguration. Why should I attend his funeral?": ["change_margin(-0.25, 0.125);enable_tag('lewis')", "This is just incredibly petty and the rest of the nation has already begun denouncing you."]
 }, []],
 /*26*/"We Have Liftoff": ["After extensive research and development by NASA and SpaceX and your African-American friend Elon Musk, the demo for the Dragon something rocket is FINALLY happening! Today is a great day to be an American!", "images/crew_dragon.png",{ 
   "Great activity and success!": ["change_margin(0.25, 0.125", "Congratulations to the astronauts that left the Earth today. Good choice."]
@@ -219,11 +265,11 @@ event_names = {
   "Arizona deserves the convention. Governor Ducey has been a good friend!": ["change_state_margins(['AZ'], 0.25, 0.25);enable_tag('sun_belt_convention');convention_location='AZ'", "Governor Ducey really appreciates it!"],  
   "Georgia deserves the convention. Governor Kemp has been annoying, but useful.": ["change_state_margins(['GA'], 0.25, 0.25);enable_tag('sun_belt_convention');convention_location='GA'", "Governor Kemp really appreciates it!"],  
   "Florida deserves the convention. Governor DeSantis is a rising star.": ["change_state_margins(['FL'], 0.25, 0.25);enable_tag('sun_belt_convention');convention_location='TX'", "Governor DeSantis really appreciates it!"]
-}, []],
+}, ['convention']],
 /*30*/"The Second Wave": ["With a second wave raging all over the Sun Belt, your dreams of an in-person convention are looking less and less likely. More and more Republican insiders and Senators are pressuring you to put on a online convention like the Democrats instead of risking a huge backlash as pandemic cases soar.", "images/republican.png",{ 
   "An in-person convention is dangerous. Let's make an amazing online event.": ["change_state_margins([convention_location], -0.125, -0.125);change_margin(0.125, 0.125)", "Although we couldn't get the pizzaz of an in-person convention, the nation rests assured that you are still concerned about the pandemic."],
   "Arizona deserves the convention. Governor Ducey has been a good friend!": ["change_state_margins([convention_location], 0.125, 0.125);change_margin(-0.25, 0.125)", "Doubling down on the convention shows the Governor of " + convention_location + " that you really care, but the nation is worried at your antics."]
-}, ['sun_belt_convention', 'coronavirus']],
+}, ['sun_belt_convention', 'coronavirus', 'convention']],
 /*31*/"Barr's Police": ["Attorney General Bill Bar has devised quite the devilishly dastardly plan to end the rioting and the looting: sending secret police to liberal cities to abduct protestors and dissuade further rioting and protesting. This could be deployed to a few cities or as many as you want, but if the Democrats find out about this we would pay dearly.", "images/barr.jpg",{ 
   "Let's deploy some in Minneapolis, Detroit, Madison, and Pittsburgh to test this out.": ["change_state_margins(['MN', 'WI', 'MI', 'PA'], 0.5, 0.5);change_margin((Math.round(Math.random()) - 1)*2, 0)", "The protesting has quelled down a bit in fear, but we'll have to see if the media and the Democrats catch on to us."],
   "Why start small? Minneapolis, Detroit, Madison, Pittsburgh, Scottsdale, Atlanta, Charlotte, Miami.": ["change_state_margins(['MN', 'WI', 'MI', 'PA', 'AZ', 'GA', 'NC', 'FL'], 0.5, 0.5);change_margin((Math.round(Math.random()-0.25) - 1)*2, 0)", "The protesting has quelled down a bit in fear, but we'll have to see if the media and the Democrats catch on to us."],
@@ -261,7 +307,77 @@ event_names = {
   "The Clintons have finally been EXPOSED! We've got them!": ["change_margin(-0.5, 0.25)", "This would have been a fine move in 2016, but Hillary is no longer your opponent. All this does is shine a light on your own dealings with Epstein."],
   "Unfortunate, but this isn't helpful to my campaign.": ["", "This seems like the smart thing to do. We shouldn't let Jeffrey Epstein be a centerpiece of this campaign, for obvious reasons."]
 }, []],
+/*40*/"Republican National Convention": ["They've finally got him. A swathe of documents have been released detailing former President Bill Clinton's dealings with now-deceased sexual abuser Jeffrey Epstein, and they are very damaging to his reputation. This is quite a damaging blow for the Clintons.", "images/rnc.png", { 
+  "Let's go!": ["special_event(2)", ""]
+}, []],
+/*41*/"Charli d'NoMore-io": ["After that disaster of a Tulsa rally, your campaign staff has found out that the youth mobilized to 'troll' you by using an app named 'TikTok'. Unfortunately for them, Congress has also received reports that TikTok uses a backdoor to send data to the Chinese Communist Party, putting American citizens and national security at risk.", "images/tiktok.jpg",{ 
+  "TikTok must go! We can own China and the youth at the same time.": ["change_state_margins('seniors', -0.25, 0);change_state_margins('trump_base', 0.25, 0)", "China hawks and the GOP base are pleased with this, but you've unleashed what people are calling 'zoomer energy'."],
+  "We shouldn't anger the youth to appease China hawks.": ["change_state_margins('seniors', 0.25, 0);change_state_margins('trump_base', -0.25, 0)", "The Democrats are using this to highlight you weakness on China, but angering the youth would probably not have been worth it."]
+}, ['tulsa']],
+/*42*/"Beirut Explosions": ["The Situation Room has just been briefed of explosions in Beirut, Lebanon, that have rocked the MENA region. The sources of these explosions are unclear, but the world is looking towards you; this could be your last chance to show foreign policy leadership. What is your plan here?", "images/beirut.png",{ 
+  "I was elected to not stick my nose in Middle Eastern affairs.": ["change_state_margins('trump_base', -0.25, 0.25)", "This plays very well with the base that elected you, but mainstream conservatives have never liked your isolationism."],
+  "We can show leadership by spending some time and resources in Lebanon.": ["change_margin(0.125, 0.0625);change_campaign_multiplier(-0.05, 0)", "This projects American leadership without alienating people, although we've lost some valuable time that could have been spent campaigning."],  
+  "It's time to be tough. We need troops on the ground to find out exactly what happened in Lebanon.": ["change_state_margins('trump_base', 0.25, -0.25)", "Quite a surprising move from you, but traditional conservatives are praising you for this move."],  
+  "Let's not be hasty about this, and instead wait it out.": ["", "Waiting for more information is always a good idea."]
+}, []],
+/*43*/"Axios": ["An Australian journalist by the name of 'Jonathan Swan' is offering an interview with you at Axios, to be televised by HBO. This is a strong opportunity to reach many millions of voters, but of course, this being you, you could say anything to mess up at any time. Is this worth it?", "images/axios.png",{ 
+  "What's the worst I could say?": ["change_margin(0, 2)", "We've just shot the interview. Let's see how the nation reacts..."],
+  "No, that is a risk I do not want to take now.": ["", "Likely a wise move."]
+}, []],
+/*44*/"Pried from their Cold Dead Hands": ["The Liberal Democrat New York State Government is up to no good again! Their Attorney General just announced this morning in a presser that they are pressing charges against the National Rifle Association for petty crimes like 'fraud' and whatnot. This is clearly a case of liberals gone mad!", "images/nra.jpg",{ 
+  "Hold on. Fraud is quite a serious crime. We can't go around defending the NRA on this one.": ["change_margin(0.25, 0);change_state_margins('trump_base', 0, -0.25);change_campaign_multiplier(-0.05, 0)", "A fight like this is not worth it during election time, even if it angers our base and hurts our bottom line a bit."],
+  "We need to denounce New York strongly for this blatant partisanship!": ["change_margin(-0.125, 0);change_state_margins('trump_base', 0, 0.5);change_campaign_multiplier(-0.05, 0)", "Ultimately the NRA is going to donate less to us and this will be a bitter partisan fight, but the base loves this red meat."],  
+  "Let's negotiate with the AG instead to see if we can save the NRA.": ["change_margin(-0.125, 0);change_state_margins('trump_base', 0, -0.25);change_campaign_multiplier(0.1, 0)", "Dirty politics like this turns off both the base and the rest of the nation, but the NRA is safe now and can keep filling our coffers."]
+}, []],
+/*45*/"TRUMPGATE!": ["It really feels like déjà vu with a new report released by the House Intelligence Committee that alleges that Russia and Vladimir Putin are interfering in the 2020 election to help you out. The definition of insanity is being a Democrat!", "images/putin.jpg",{ 
+  "I won big league the last time this was brought up. Let them try.": ["change_margin(0.25, 0.125);change_campaign_multiplier(-0.05, 0.025)", "These lawsuits and hearings will take some time and resources away, but this is a battle we will win."],
+  "You know, maybe we should solicit Russian help this time.": ["change_margin(0, 2)", "This is an extremely high-risk, high-reward play. Let's hope it works out for us."]
+}, []],
+/*46*/"The Next Great American Statesman": ["Washington. Jefferson. Roosevelt. Lincoln. Trump. Five great statesmen. Five great Presidents who will go down in history as freedom fighters for the American nation. These are all facts, and yet Mount Rushmore lacks a statue of your great face on it. What a SHAME!", "images/rushmore.png",{ 
+  "Let's demand that South Dakota Governor Kristi Noem add me to Mt. Rushmore!": ["change_margin(-0.125, 0.0625)", "Unfortunately Governor Noem has replied that she cannot do so, but given you a small bust of Mt. Rushmore with your face on it as consolation."],
+  "In a few decades, America will realize how great I was and will add me anyway. No point in doing it now!": ["change_margin(0.125, 0.0625)", "Great men are often recognized too late, sadly."]
+}, []],
+/*47*/"I'm an Executive Order, and I Pretty Much Just Happen": ["With the breakdown of negotiations with Congress, the nation is badly in need of stimulus and your advisors have suggested a potential workaround - an executive order. There is, however, one catch; executive orders are difficult to implement, and the more expansive the EO, the riskier it is.", "images/executive_order.png",{ 
+  "We can do a smaller framework instead of risking it with a big proclamation. ": ["change_margin(Math.round(Math.random()+0.45)*0.5, 0)", "This is going to be very easy to implement even if small, and should not have legal challenges."],
+  "Let's look at something bigger, with more tax cuts and unemployment benefits.": ["change_margin(Math.round(Math.random()+0.25)*1, 0)", "We are going to see some states have difficulties implementing this, but nothing too harsh."],  
+  "Get the entire GOP relief bill in this executive order.": ["change_margin(Math.round(Math.random())*1.5, 0)", "This is quite the hefty executive order, and there are going to be lawsuits and bureaucratic nightmares abound. Let's hope this succeeds."],  
+  "Why think small? Dream big, add the GOP relief bill and some extras like college debt relief": ["change_margin(Math.round(Math.random()-0.25)*2, 0);change_state_margins('left', 0, 0.25)", "Now this is a moonshot executive order. I'm not sure of our chances, but if this works, we are getting a huge break."]
+}, ['coronavirus', 'no_heroes']],
+/*48*/"Jim Crow Barack": ["Barack Obama gave quite the stunning eulogy at John Lewis' funeral, speaking from the heart and rebuking some of the traditions of the past as a new Jim Crow.  Not only did that Kenyan steal your spotlight again, he also droned on about Senate procedure during a funeral and Tucker Carlson EXPERTLY called him out on that!", "images/obama_lewis.png",{ 
+  "Tucker Carlson is right! Why must Barack Obama politicize everything?": ["change_state_margins('trump_base', -0.25, 0.25)", "You are speaking to your base with this one. Remember to appeal to swing voters as well though."],
+  "Carlson is wrong. Obama made some good points.": ["change_state_margins('trump_base', 0.25, -0.25)", "This criticizes your base quite a bit. Remember to give them a bit of red meat often too."]  
+}, ['lewis']],
+/*49*/"Obamagate Hearings": ["With some new developments on the FIERY Obamagate scandal that involved something to do with unmasking and Michael Flynn, the Senate GOP is now considering subpoenaing some key Democrat players to find out more about this issue! What are your thoughts on this, President Trump?", "images/obamagate_hearings.png",{ 
+  "Let's subpoena the man himself, Barack Obama.": ["change_margin(-0.25, 0.125)", "Mr. Obama is an intelligent speaker, and the public is siding with him on this one. This might not have been a good move."],
+  "We need to subpoena Joe Biden to know more about this.": ["change_margin(0.25, 0.125)", "Vice-President Biden was surprisingly disciplined during the hearings, although tying him into another scandal can only hurt his favorability ratings."],  
+  "I don't care about Obamagate anymore, to be honest.": ["", "That's fair, it was quite a pointless crusade anyway."]
+}, ['obamagate', 'flynn']],
+/*50*/"The Enticing Kamala Harris": ["With the selection of Kamala Harris by the Joe Biden campaign, we now have a candidate that is potentially easier to attack than Mr. Biden himself. Various advisors are suggesting various different strategies to tackle the California Senator, but what are your thoughts on this?", "images/enticing_harris.png",{ 
+  "Let's not go after the ticket too much, and keep raising my favorability rating.": ["change_margin(0.5, 0.25)", "Continuing to raise your favorability rating is a smart idea during an election that is a referendum on you."],
+  "Kamala Harris is a California liberal, and more proof Biden is now bending to the Radical Left.": ["change_margin(0, 0.25);change_campaign_multiplier(0.15, 0.05)", "Whether or not this attack sticks with the public is up in the air, but our donors are quite scared of her and are donating profusely."],  
+  "Let's be honest here. Is she even eligible to be Vice-President?": ["change_state_margins('trump_base', -1, 0.25)", "Birtherism was unpopular in 2009 and is still unpopular today. This just won't work."],  
+  "Her record as Attorney General is disgusting during these times of police brutality.": ["change_state_margins('left', -0.1, 0.25);change_state_margins('trump_base', -0.25, 0)", "This is a surprising take considering your thoughts on law and order, but this is resonating with a part of the electorate."]
+}, []],
+/*51*/"A Day Around Congress": ["Finally, for a little bit of time, you can be free of any Presidential duties to meet people around Congress. No more foreign policy, no more economic woes, no more briefings to worry about for just a few days, just an enjoyable trip around Washington D.C. with a few friends. Whom do you want to meet during this time?", "images/capitol.png",{ 
+  "Speaker Pelosi. I want to have an edge on her when we're negotiating.": ["pelosi_friendliness = Math.min(pelosi_friendliness + 0.2, 0.9)", "You had a good time talking to Speaker Pelosi, and both of you have learnt some things! She's not as nasty as you originally thought, and she's even slowly starting to like you back!"],
+  "Senate Majority Leader Mitch McConnell. He must have a grasp on my re-election prospects.": ["get_advice()", ""],  
+  "Senators McSally, Cornyn, Perdue, and Tillis. We need to work together in our campaigns.": ["change_state_margins(['AZ', 'TX', 'GA', 'NC'], 0.25, 0.25)", "These Senators were instrumental in telling you how to campaign more effectively in Arizona, Texas, Georgia, and North Carolina, and the Sun Belt looks even more sunny today!"],  
+  "Senator Coons. I need to know more about Joe Biden since I'll be up against him in a debate.": ["", "You've learned quite a few things from the Democrats, and also learnt some insight into how Mr. Biden debates."]
+}, []],
+/*52*/"The Last Cookie on the Plate": ["Considering your lagging national polling numbers, advisors are suggesting a drastic move that could really upend the race - replacing Mike Pence on the ticket before the convention, with another politician. This would be an unprecedented move that brings a lot of risk, but also a lot of potential benefits.", "images/vice_presidency.png",{ 
+  "Nikki Haley would be a great pick for VP. She would win back the suburbanites that I need.": ["change_state_margins('christians', 0, -1);change_state_margins('trump_base', 1, 0);republican_speakers['pence'][3]=0;republican_speakers['haley'][3]=1", "I'm glad to have Vice-President Haley on the team."],
+  "Marco Rubio would be a great pick for VP. He is popular in Florida and with Latinos in general.": ["change_state_margins('christians', 0, -1);change_state_margins(['FL, AZ'], 1, 0);republican_speakers['pence'][3]=0;republican_speakers['rubio'][3]=1", "I'm glad to have Vice-President Rubio on the team."],
+  "Kristi Noem would be a great pick for VP. She is a young rising star who is aligned with me and would help me with my base.": ["change_state_margins('christians', 0, -1);change_state_margins('trump_base', 0, 1);republican_speakers['pence'][3]=0", "I'm glad to have Vice-President Noem on the team."],
+  "No, I'll stick with my man Mike Pence.": ["", "Mike Pence has always been a good friend of yours."]
+}, ['convention']],
 }
+
+/*42"": ["", "images/",{ 
+  "": ["", ""],
+  "": ["", ""],  
+  "": ["", ""],  
+  "": ["", ""]
+}, []],*/
 
 ce_name = ""
 ce_description = ""
@@ -350,7 +466,6 @@ function get_event(){
 		ce_function = "get_election_results(0)"
 		return false;
 	}
-	console.log("event starting")
 	events = {...list[week]}
 	events_to_delete = []
 	for(i = 0; i < Object.keys(events).length; i++){
@@ -376,7 +491,7 @@ function get_event(){
 		total = total + tot 
 	}
 	for(i = 0; i < Object.keys(events).length; i++){
-		events[Object.keys(events)[i]] = Object.values(events)[0]/total
+		events[Object.keys(events)[i]] = Object.values(events)[i]/total
 	}
 	num = 0
 	for (i = 0; i < Object.keys(events).length; i++){
@@ -391,6 +506,7 @@ function get_event(){
 			event = Object.keys(events)[i]
 		}
 	}
+	console.log("event picked:" + event)
 	event_names[Object.keys(event_names)[event]][3].push('completed')
 	ce_name = Object.keys(event_names)[event]
 	ce_description = Object.values(event_names)[event][0]
@@ -457,15 +573,73 @@ function enable_tag(tag) {
 function special_event(event){
 	current_event = event
 	event_length = special_event_lengths[event]
+	special_event_tick = 0
 	current_tick = 0
 	document.getElementById("submit").style.display = "none"
 	document.getElementById("special_event").style.display = "inline"
+	document.getElementById("event2").style.display = "inline"
+	document.getElementById("event1").style.display = "inline"
 	document.getElementById("image").style.display = "block"
 	document.getElementById("image").src = ce_image
 	document.getElementById("blurb").innerHTML = special_event_blurbs[event]
 	document.getElementById("title").innerHTML = ce_name
+	document.getElementById("options").style.display = "none"
 	pelosi_score = 0
 	trump_score = 0
+	if(event==2){
+		document.getElementById("event2").style.display = "none"
+		document.getElementById("convention_speakers").style.display = "block"
+		string = ""
+		for(i = 0; i < Object.keys(republican_speakers).length; i++){
+		  if(Object.values(republican_speakers)[i][3] == 0){
+		    string = string + "<option value='" + Object.keys(republican_speakers)[i] + "'>" + Object.values(republican_speakers)[i][0] + "</option>"
+		  }
+		}
+		document.getElementById("candidate").style.display = "block"
+		document.getElementById("candidate").innerHTML = string
+		document.getElementById("candidate").setAttribute("onchange", "change_blurb()");
+		speaker = document.getElementById("candidate").value
+		document.getElementById("blurb").innerHTML = special_event_blurbs[2] + "<br><br>" + republican_speakers[speaker][4]
+		speaker_string = "<tr><th>Name</th><th>Bonus</th><th>State</th>"
+		for(i = 0; i < convention_speakers.length; i++){
+		  j = i + 1
+		  speaker = convention_speakers[i]
+		  bonus_string = ""
+		  for(k = 0; k < Object.keys(republican_speakers[speaker][1]).length; k++){
+			bonus_string = bonus_string + Object.keys(republican_speakers[speaker][1])[k] + ": +" + Object.values(republican_speakers[speaker][1])[k] + "; "
+		  }
+		  bonus_string = bonus_string.substring(0, bonus_string.length - 2)
+		  speaker_string = speaker_string + "<tr><td>" + republican_speakers[speaker][0] + "</td><td>" + bonus_string + "</td><td>" + republican_speakers[speaker][2] + "</td><td><button onclick=event_action("+j.toString()+")>Remove</button></tr>"
+		}
+		document.getElementById("convention_speakers").innerHTML = speaker_string
+		document.getElementById("submit").style.display = "none"
+		document.getElementById("event1").style.display = "inline"
+		document.getElementById("event1").innerHTML = "Select"
+		if(convention_speakers.length == 5){
+			bonuses = {"Trump Republicans": 0, "Moderate Republicans": 0, "Moderate Democrats": 0, "Left Populists": 0, "Seniors": 0, "Youth": 0, "Christians": 0, "African-Americans": 0, "Latinos": 0}
+			for(i = 0; i< convention_speakers.length; i++){
+				speaker_bonuses = republican_speakers[convention_speakers[i]][1]
+				for(j = 0; j < Object.keys(speaker_bonuses).length; j++){
+					current_bonus = Object.keys(speaker_bonuses)[j]
+					current_bonus_value = Object.values(speaker_bonuses)[j]
+					bonuses[current_bonus] = bonuses[current_bonus] + current_bonus_value
+				}
+			}
+			trump_base = bonuses["Trump Republicans"] * 0.1
+			moderate_base = bonuses["Moderate Republicans"] * 0.1
+			dem_base = bonuses["Moderate Democrats"] * 0.1
+			bernie_base = bonuses["Left Populists"] * 0.1
+			youth = bonuses["Youth"] * 0.1
+			seniors = bonuses["Seniors"] * 0.1
+			christians = bonuses["Christians"] * 0.1
+			ce_function = "disable_tag('convention');change_state_margins('trump_base'," + moderate_base +"," + trump_base +");change_state_margins('left'," + dem_base + "," + bernie_base + ");change_state_margins('seniors'," + youth + "," + seniors + ");change_state_margins('christians',0," + christians + ")"
+			ce_option_functions = [ce_function, ce_function, ce_function, ce_function]
+			document.getElementById("submit").style.display = "inline"
+			document.getElementById("event1").style.display = "none"
+			ce_advisor_blurb = "Awesome convention!"
+			ce_option_advisor_blurbs = [ce_advisor_blurb, ce_advisor_blurb, ce_advisor_blurb, ce_advisor_blurb] 
+		}
+	}
 }
 	
 function event_action(action){
@@ -558,6 +732,19 @@ function event_action(action){
 			ce_function = "change_margin(0.7, 0)"
 		}
 	}
+	if(current_event == 2){
+		if(action==0){
+			speaker = document.getElementById("candidate").value
+			convention_speakers.push(speaker)
+			republican_speakers[speaker][3] = 1
+		}
+		else{
+			speaker = convention_speakers[action - 1]
+			republican_speakers[speaker][3] = 0
+			convention_speakers.splice(action - 1, 1)
+		}
+		special_event(2)
+	}
 	if(special_event_tick == special_event_lengths[current_event]){
 		document.getElementById("special_event").style.display = "none"
 		document.getElementById("submit").style.display = "inline"
@@ -565,6 +752,56 @@ function event_action(action){
 		ce_option_advisor_blurbs = [ce_advisor_blurb, ce_advisor_blurb, ce_advisor_blurb, ce_advisor_blurb] 		
 		stage = 0
 	}
+}
+
+function get_advice() {
+	swing_states = ["OH", "TX", "IA", "NC", "FL", "AZ", "WI", "MI", "PA", "MN", "NH", "NV", "ME"]
+	state_demarcations = [[], [], [], [], []]
+	state_demarcation_blurbs = [" states that are strongly in our favor barring a major upset, and shouldn't be worried about too much. ", " currently favoring us, but could perhaps go blue if the race changes. ", " definitely tossup and should be kept in check. ", " currently likely going blue, unless the state of the race changes. ", " almost definitely in Biden's column, and should be triaged if possible. "] 
+	for(i = 0; i < swing_states.length; i++){
+		state = states.indexOf(swing_states[i])
+		margin = state_margins[state] + national_margin
+		if(margin > 3){
+			state_demarcations[0].push(swing_states[i])
+		}
+		else if(margin > 1){
+			state_demarcations[1].push(swing_states[i])
+		}
+		else if(margin < -3){
+			state_demarcations[4].push(swing_states[i])
+		}
+		else if(margin < -1){
+			state_demarcations[3].push(swing_states[i])
+		}
+		else{
+			state_demarcations[2].push(swing_states[i])
+		}
+	}
+	advice = ""
+	for(i = 0; i < state_demarcations.length; i++){
+		string = ""
+		if(state_demarcations[i].length > 0){
+			for(j = 0; j < state_demarcations[i].length; j++){
+				string = string + state_demarcations[i][j]
+				if(j == state_demarcations[i].length - 2){
+					string = string + ", and "
+				}
+				else if(j < state_demarcations[i].length - 2){
+					string = string + ", "
+				}
+			}
+			auxillary = " are"
+			if(state_demarcations[i].length == 1){auxillary = " is"}
+			advice = advice + string + auxillary + state_demarcation_blurbs[i]
+		}
+	}
+	ce_advisor_blurb = "After a great talk with Mr. McConnell, he briefed you on the current state of the race and gave you some great insights. Here were some of the highlights!</br></br>" + advice
+	ce_option_advisor_blurbs = [ce_advisor_blurb, ce_advisor_blurb, ce_advisor_blurb, ce_advisor_blurb]
+}
+
+function change_blurb(){
+	speaker = document.getElementById("candidate").value
+	document.getElementById("blurb").innerHTML = special_event_blurbs[2] + "<br><br>" + republican_speakers[speaker][4]
 }
 
 function get_election_results(type){
@@ -719,9 +956,13 @@ function submit() {
 			}
 		}
 		eval(ce_function)
+		if(ce_function.substring(0, 13) == "special_event"){return false;}
+		if(ce_function == "get_election_results(0)"){return false;}
 		document.getElementById("1").checked = true
 		document.getElementById("image").src = advisor_img
 		document.getElementById("options").style.display = "none"
+		document.getElementById("candidate").style.display = "none"
+		document.getElementById("convention_speakers").style.display = "none"
 		document.getElementById("title").innerHTML = "Advisor"
 		document.getElementById("blurb").innerHTML = ce_advisor_blurb
 		stage = stage + 1
